@@ -67,6 +67,7 @@ void NiceBusT4::loop() {
   }
 }
 
+  /*
 void NiceBusT4::on_rs485_data(const std::vector<uint8_t> &data) {
   std::vector<uint8_t> frame(data.begin(), data.end() - 2);
   uint16_t crc = crc16(&frame[0], frame.size());
@@ -136,6 +137,7 @@ void NiceBusT4::on_rs485_data(const std::vector<uint8_t> &data) {
   }
 }
 
+*/
 void NiceBusT4::send_command_(const uint8_t *data, uint8_t len) {
   std::vector<uint8_t> frame = {START_CODE, *this->header_[1], *this->header_[2]};
   for (size_t i = 0; i < len; i++) {
