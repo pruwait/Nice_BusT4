@@ -125,33 +125,29 @@ class NiceBusT4 : public Component, public Cover {
  public:
   void setup() override;
   void loop() override;
+  void dump_config() override;
+  
   CoverTraits get_traits() override;
 
-/*  void control(const CoverCall &call) override {
-    // This will be called every time the user requests a state change.
-    if (call.get_position().has_value()) {
-      float pos = *call.get_position();
-      // Write pos (range 0-1) to cover
-      // ...
+void set_address(uint16_t address) {
+    uint8_t start_code = START_CODE;
+    uint8_t address_h = (uint8_t)(address >> 8);
+    uint8_t address_l = (uint8_t)(address & 0xFF);
+    this->header_ = {&start_code, &address_h, &address_l};
+  }
+  void set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
+  void on_rs485_data(const std::vector<uint8_t> &data) override;
+  cover::CoverTraits get_traits() override;
 
-      // Publish new state
-      this->position = pos;
-      this->publish_state();
-    }
-    if (call.get_stop()) {
-      // User requested cover stop
-    }
-  }*/
-  
-  protected:
+ protected:
   void control(const cover::CoverCall &call) override;
   void send_command_(const uint8_t *data, uint8_t len);
   
-//  uint32_t update_interval_{500};
-//  uint32_t last_update_{0};
-//  uint8_t current_request_{GET_STATUS};
-//  uint8_t last_published_op_;
-//  float last_published_pos_;
+  uint32_t update_interval_{500};
+  uint32_t last_update_{0};
+  uint8_t current_request_{GET_STATUS};
+  uint8_t last_published_op_;
+  float last_published_pos_;
   
 };
 
