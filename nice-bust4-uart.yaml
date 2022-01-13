@@ -11,7 +11,7 @@ external_components:
   - source:
       type: git
       url: https://github.com/pruwait/Nice_BusT4
-#  - source: my_components
+
 
 
 # включаем отладку для поиска причины перезагрузки через лог
@@ -19,8 +19,7 @@ debug:
     
 # Enable logging
 logger:
-  level: VERY_VERBOSE
-#  level: VERBOSE
+  level: DEBUG
   baud_rate: 0
   
 # Enable Home Assistant API
@@ -64,8 +63,6 @@ captive_portal:
 # Enable web server (can be disabled)
 web_server:
   port: 80
-  
-
 
 
 button:
@@ -74,11 +71,11 @@ button:
     id: send_open
     on_press:
       lambda: |-
-        my_nice_cover -> NiceBusT4::send_open();
-
+         my_nice_cover -> NiceBusT4::send_open();
+        
+        
 cover:
 - platform: bus_t4
   name: "Nice Wingo 5000"
   id: "my_nice_cover"
-
 
