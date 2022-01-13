@@ -1,26 +1,26 @@
 /*
   Nice BusT4
   Обмен данными по UART на скорости 19200 8n1
-  Перед пакетом с данными отправляется break длительностью 10 бит
+  Перед пакетом с данными отправляется break длительностью 519us (10 бит)
   Содержимое пакета CMD.SET :
 
   0x55 0x0c 0x00 0x03 0x05 0x81 0x01 0x05 0x83 0x01 0x82 0x03 0x64 0xe4 0x0c
   |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
-  |    |    |    |    |    |    |    |    |    |    |    |    |    |   CRC - количество бит минус 3
-  |    |    |    |    |    |    |    |    |    |    |    |    |    |__ пока не знаю
-  |    |    |    |    |    |    |    |    |    |    |    |    |_______ пока не знаю
-  |    |    |    |    |    |    |    |    |    |    |    |____________ возможно, команда
-  |    |    |    |    |    |    |    |    |    |    |_________________ flag.cmd (EVT/RSP/SET/GET/ERR)
-  |    |    |    |    |    |    |    |    |    |______________________ пока не знаю
-  |    |    |    |    |    |    |    |    |___________________________ CRC2
-  |    |    |    |    |    |    |    |________________________________ возможно, тип команды
-  |    |    |    |    |    |    |_____________________________________ возможно, группа команды CMD
-  |    |    |    |    |    |__________________________________________ адрес от кого запрос
-  |    |    |    |    |_______________________________________________ ряд (серия) от кого запрос
-  |    |    |    |____________________________________________________ адрес кому запрос (0xFF для всех)
-  |    |    |_________________________________________________________ ряд (серия) кому запрос(0xFF для всех)
-  |    |______________________________________________________________ CRC - количество бит минус 3
-  |___________________________________________________________________ начало пакета
+  |    |    |    |    |    |    |    |    |    |    |    |    |    |   CRC1 - количество бит минус 3
+  |    |    |    |    |    |    |    |    |    |    |    |    |    |__ Byte14 CRC3 = Byte10^Byte11^Byte12^Byte13 
+  |    |    |    |    |    |    |    |    |    |    |    |    |_______ Byte13 пока не знаю
+  |    |    |    |    |    |    |    |    |    |    |    |____________ Byte12 возможно, команда
+  |    |    |    |    |    |    |    |    |    |    |_________________ Byte11 flag.cmd (EVT/RSP/SET/GET/ERR)
+  |    |    |    |    |    |    |    |    |    |______________________ Byte10 пока не знаю
+  |    |    |    |    |    |    |    |    |___________________________ Byte9 CRC2 = Byte3^Byte4^Byte5^Byte6^Byte7^Byte8  
+  |    |    |    |    |    |    |    |________________________________ Byte8 возможно, тип команды
+  |    |    |    |    |    |    |_____________________________________ Byte7 возможно, группа команды CMD
+  |    |    |    |    |    |__________________________________________ Byte6 адрес от кого запрос
+  |    |    |    |    |_______________________________________________ Byte5 ряд (серия) от кого запрос
+  |    |    |    |____________________________________________________ Byte4 адрес кому запрос (0xFF для всех)
+  |    |    |_________________________________________________________ Byte3 ряд (серия) кому запрос(0xFF для всех)
+  |    |______________________________________________________________ Byte2 CRC1 - количество бит минус 3
+  |___________________________________________________________________ Byte1 начало пакета
  
 
   Для Oview к адресу всегда прибавляется 80.
@@ -35,9 +35,9 @@ BusT4                       ESP8266
 9  7  5  3  1  
 10 8  6  4  2
 место для кабеля
-            1 ---------- Tx
+            1 ---------- Rx
             2 ---------- GND
-			4 ---------- Rx
+			4 ---------- Tx
 			5 ---------- +24V
 			
 			
@@ -75,14 +75,15 @@ namespace bus_t4 {
 
 /* для короткого обращения к членам класса */
 using namespace esphome::cover;
-
-#define _UART_NO UART0 /* номер uart */
-#define TX_P 1         /* пин Tx */
-#define baud_work 19200 /* рабочий бодрэйт */
-#define baud_break 9200 /* бодрэйт для длинного импульса перед пакетом */
+//using esp8266::timeoutTemplate::oneShotMs;
 
 
+static const int _UART_NO=UART0; /* номер uart */
+static const int TX_P = 1;         /* пин Tx */
+static const uint32_t BAUD_BREAK = 9200; /* бодрэйт для длинного импульса перед пакетом */
+static const uint32_t BAUD_WORK = 19200; /* рабочий бодрэйт */
 static const uint8_t START_CODE = 0x55; /*стартовый байт пакета */
+
 
 /* сетевые настройки esp
   Ряд может принимать значения от 0 до 63, по-умолчанию 0
@@ -95,11 +96,6 @@ static const uint8_t DEF_SERIES = 0x00;
 static const uint8_t DEF_ADDR = 0x83;
 
 
-// осталось от dooya, нужно переписать
-enum ReadType : uint8_t {
-  GET_POSITION = 0x02,
-  GET_STATUS = 0x05,
-};
 
 
 
@@ -147,15 +143,16 @@ enum run_cmd : uint8_t {
 };
 
 
-/* используется в ответах EVT */
+/* используется в ответах */
 enum Status : uint8_t {
-  LOCKED   = 0x01,
+  OPENING  = 0x04,
+  CLOSING  = 0x05,
+  OPENED   = 0x02,
+  CLOSED   = 0x03,
+  STOPPED   = 0x07,
+  UNKNOWN   = 0x00,
   UNLOCKED = 0x02,
-  MOVING   = 0x03,
-  OPENING  = 0x4,
-  CLOSING  = 0x5,
-  NO_LIM   = 0x6, /* no limits set */
-  ERROR    = 0x07, /* automation malfunction/error */
+  NO_LIM   = 0x06, /* no limits set */ 
   NO_INF   = 0x0F, /* no additional information */
 };
 
@@ -211,7 +208,7 @@ class NiceBusT4 : public Component, public Cover {
 
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
-    uint8_t current_request_{GET_STATUS}; // осталось от dooya, возможно придется переписать согласно статусам от nice
+  //  uint8_t current_request_{GET_STATUS}; // осталось от dooya, возможно придется переписать согласно статусам от nice
     uint8_t last_published_op_;
     float last_published_pos_;
 
@@ -219,16 +216,36 @@ class NiceBusT4 : public Component, public Cover {
     uint8_t _uart_nr;
     uart_t* _uart = nullptr;
 
-    
+   /* 
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
 	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
 	std::string format_hex_pretty(const char *data, size_t length);  // для более красивого вывода hex строк
 	char format_hex_pretty_char(char v) ;                           // для более красивого вывода hex строк
-    void send_array_cmd (std::vector<char> data);
+    */
+	
+	
+	std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
+	std::string format_hex_pretty_(std::vector<char> data);          // для более красивого вывода hex строк
+	std::string format_hex_pretty_(const char *data, size_t length);  // для более красивого вывода hex строк из char 
+	std::string format_hex_pretty_uint8_t(const uint8_t *data, size_t length);  // для более красивого вывода hex строк из uint8_t
+	std::string format_hex_pretty_uint8_t(std::vector<uint8_t> data) { return format_hex_pretty_uint8_t(data.data(), data.size()); }
+	char format_hex_pretty_char_uint8_t(uint8_t v);
+	char format_hex_pretty_char_(char v) ;                           // для более красивого вывода hex строк
+	
+	
+	
+	
+	void send_array_cmd (std::vector<char> data);
     void send_array_cmd (const char *data, size_t len);
     //uint8_t *raw_cmd = nullptr;                                     // указатель на данные для отправки
 	
-	
+	void parse_status_packet (const std::vector<uint8_t> &data); // разбираем пакет статуса
+    
+	void handle_char_(uint8_t c);                                         // обработчик полученного байта
+    void handle_datapoint_(const uint8_t *buffer, size_t len);          // обработчик полученных данных
+    bool validate_message_();                                         // функция проверки полученного сообщения
+
+	std::vector<uint8_t> rx_message_;                          // здесь побайтьно накапливается принятое сообщение
 
 }; //класс
 

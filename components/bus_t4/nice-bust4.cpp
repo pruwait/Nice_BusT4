@@ -2,12 +2,18 @@
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"  // для использования вспомогательных функция работ со строками
 
+
+
+
+
+
 namespace esphome {
 namespace bus_t4 {
 
 static const char *TAG = "bus_t4.cover";
 
 using namespace esphome::cover;
+
 
 /*
   uint16_t crc16(const uint8_t *data, uint8_t len) {
@@ -24,7 +30,7 @@ using namespace esphome::cover;
     }
   }
   return crc;
-  } */
+  } */ 
 
 CoverTraits NiceBusT4::get_traits() {
   auto traits = CoverTraits();
@@ -32,10 +38,27 @@ CoverTraits NiceBusT4::get_traits() {
   return traits;
 }
 
+
+/*
+Пока отправляю дампы команд OVIEW
+Может, со временем буду учиться генерировать свои команды
+SBS               55 0c 00 03 00 81 01 05 86 01 82 01 64 e6 0c
+STOP              55 0c 00 03 00 81 01 05 86 01 82 02 64 e5 0c
+OPEN              55 0c 00 03 00 81 01 05 86 01 82 03 64 e4 0c
+CLOSE             55 0c 00 03 00 81 01 05 86 01 82 04 64 e3 0c
+PARENTAL OPEN 1   55 0c 00 03 00 81 01 05 86 01 82 05 64 e2 0c
+PARENTAL OPEN 2   55 0c 00 03 00 81 01 05 86 01 82 06 64 e1 0c
+
+
+
+*/
+
+
+
 void NiceBusT4::control(const CoverCall &call) {  
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
-	  std::string data = "55 0C 00 FF 00 0A 01 05 F1 0A 82 01 80 09 0C"; // пока здесь дамп sbs
+	  std::string data = "55 0c 00 03 00 81 01 05 86 01 82 02 64 e5 0c"; // пока здесь дамп sbs
 	  std::vector < char > v_cmd = raw_cmd_prepare (data);
       this->send_array_cmd (&v_cmd[0], v_cmd.size());
       
@@ -59,7 +82,7 @@ void NiceBusT4::control(const CoverCall &call) {
 }
 
 void NiceBusT4::setup() {
-  _uart =  uart_init(_UART_NO, baud_work, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
+  _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
   ESP_LOGCONFIG(TAG, "Setting up Nice ESP BusT4...");
   /*  if (this->header_.empty()) {                                                             // заполняем адреса значениями по умолчанию, если они не указаны явно в конфигурации yaml
       this->header_ = {(uint8_t *)&START_CODE, (uint8_t *)&DEF_ADDR, (uint8_t *)&DEF_ADDR};
@@ -67,12 +90,152 @@ void NiceBusT4::setup() {
 }
 
 void NiceBusT4::loop() {
-  if ((millis() - this->last_update_) > this->update_interval_) {
-    /* uint8_t data[3] = {READ, this->current_request_, 0x01};
+  /*if ((millis() - this->last_update_) > this->update_interval_) {
+     uint8_t data[3] = {READ, this->current_request_, 0x01};
       this->send_command_(data, 3);
       this->last_update_ = millis(); */
+	//   char crc1;
+//  		char data[47];
+    while (uart_rx_available(_uart) > 0) {
+      uint8_t c = (uint8_t)uart_read_char(_uart);                // считываем байт
+      this->handle_char_(c);                                     // отправляем байт на обработку
+	} //while
+  
+} //loop
+
+
+void NiceBusT4::handle_char_(uint8_t c) {
+  this->rx_message_.push_back(c);                      // кидаем байт в конец полученного сообщения
+  if (!this->validate_message_()) {                    // проверяем получившееся сообщение
+    this->rx_message_.clear();                         // если проверка не прошла, то в сообщении мусор, нужно удалить
   }
 }
+
+
+bool NiceBusT4::validate_message_() {                    // проверка получившегося сообщения
+  uint32_t at = this->rx_message_.size() - 1;       // номер последнего полученного байта
+  uint8_t *data = &this->rx_message_[0];               // указатель на первый байт сообщения
+  uint8_t new_byte = data[at];                      // последний полученный байт
+
+  // Byte 0: HEADER1 (всегда 0x00)
+  if (at == 0)                           
+    return new_byte == 0x00;
+  // Byte 1: HEADER2 (всегда 0x55)
+  if (at == 1)
+    return new_byte == 0x55;
+
+  // Byte 2: CRC1 - количество байт дальше + 1
+  // Проверка не проводится
+  
+  if (at == 2)
+    return true;
+  uint8_t crc1 = data[2];
+  uint8_t length = (crc1 + 3); // длина ожидаемого сообщения понятна
+
+
+  // Byte 3: Серия (ряд) кому пакет
+  // Проверка не проводится
+//  uint8_t command = data[3];
+  if (at == 3)
+    return true;
+
+  // Byte 4: Адрес кому пакет
+  // Byte 5: Серия (ряд) от кого пакет
+  // Byte 6: Адрес кому пакет 
+  // Byte 7: 
+  // Byte 8: 
+  
+  if (at <= 8)
+    // Проверка не проводится
+    return true;
+
+  uint8_t crc2 = (data[3]^data[4]^data[5]^data[6]^data[7]^data[8]);
+
+  // Byte 9: CRC2 = XOR (Byte 3 : Byte 8)
+  if (at == 9)
+    if (data[9] != crc2) {
+      ESP_LOGW(TAG, "Received invalid message checksum 2 %02X!=%02X", data[9], crc2);
+      return false;
+     }
+  // Byte 10: 
+  // ...
+     
+
+  // ждем пока поступят все данные пакета
+  if (at  < length)
+    return true;
+  
+  // Byte Last: CRC1
+//  if (at  ==  length) {
+  if (data[length] != crc1 ) {
+    ESP_LOGW(TAG, "Received invalid message checksum 1 %02X!=%02X", data[length], crc1);
+    return false;
+    }
+	   
+ // Если сюда дошли - правильное сообщение получено и лежит в буфере rx_message_
+ // здесь что-то делаем с сообщением
+ parse_status_packet(rx_message_);
+ 
+ std::string pretty_cmd = format_hex_pretty_uint8_t(rx_message_);                   // для вывода команды в лог
+ ESP_LOGI(TAG,  "Ответ Nice: %S ", pretty_cmd.c_str() );
+
+ // возвращаем false чтобы обнулить rx buffer
+ return false;   
+   
+}
+
+
+
+void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
+    if ((data[2] == 0x0E) && (data[7] == 0x01) && (data[8] == 0x07) && (data[13] == 0x00)) {  // узнаём пакет статуса по содержимому в определённых байтах
+	ESP_LOGD(TAG, "Статус: %#X ", data[16]);
+	/*
+  OPENING  = 0x04,
+  CLOSING  = 0x05,
+  OPENED   = 0x02,
+  CLOSED   = 0x03,
+  STOPPED   = 0x01,
+  UNKNOWN   = 0x00,
+  UNLOCKED = 0x02,
+  NO_LIM   = 0x06, // no limits set 
+  ERROR    = 0x07, // automation malfunction/error 
+  NO_INF   = 0x0F, // no additional information
+	
+	
+	*/
+	
+	switch (data[16]) {
+	  case OPENING:
+	    this->current_operation = COVER_OPERATION_OPENING;
+		ESP_LOGD(TAG, "Статус: Открывается");
+        break;
+	  case CLOSING:
+	    this->current_operation = COVER_OPERATION_CLOSING;
+		ESP_LOGD(TAG, "Статус: Закрывается");		
+        break;
+	  case OPENED:
+	    this->position = COVER_OPEN;
+		ESP_LOGD(TAG, "Статус: Открыто");			
+        break;
+	  case CLOSED:
+	    this->position = COVER_CLOSED;
+		ESP_LOGD(TAG, "Статус: Закрыто");					
+        break;		
+	  case STOPPED:
+	    this->current_operation = COVER_OPERATION_IDLE;
+		ESP_LOGD(TAG, "Статус: Остановлено");					
+		break;		
+		
+	}
+	this->publish_state();  // публикуем состояние
+		
+	} //if
+}
+
+
+
+
+
 
 /*
   void NiceBusT4::on_rs485_data(const std::vector<uint8_t> &data) {
@@ -184,26 +347,19 @@ void NiceBusT4::send_raw_cmd(std::string data) {
 
 //  Сюда нужно добавить проверку на неправильные данные от пользователя
 std::vector<char> NiceBusT4::raw_cmd_prepare (std::string data) { // подготовка введенных пользователем данных для возможности отправки
-	/*std::vector<uint8_t> frame = {START_CODE, *this->header_[1], *this->header_[2]};
-    for (size_t i = 0; i < len; i++) {
-    frame.push_back(data[i]);
-    }*/
-	
+		
 	data.erase(remove_if(data.begin(), data.end(), ::isspace), data.end()); //удаляем пробелы
   //assert (data.size () % 2 == 0); // проверяем чётность
   std::vector < char > frame;
   frame.resize(0); // обнуляем размер команды
 
   for (uint8_t i = 0; i < data.size (); i += 2 ) { // заполняем массив команды
-    std::string sub_str(data, i, 2); // берём 2 символа из команды
+    std::string sub_str(data, i, 2); // берём 2 байта из команды
     char hexstoi = (char)std::strtol(&sub_str[0], 0 , 16); // преобразуем в число
-    //char c = hexstoi;
     frame.push_back(hexstoi);  // записываем число в элемент  строки  новой команды
   }
 
- // ESP_LOGI(TAG,  "Команда: %s Длина %d ", data.c_str(), frame.size() );
-  //  ESP_LOGI(TAG, "HEX команда %s",  str_v.c_str());
-
+ 
   return frame;
 	
 		
@@ -211,7 +367,7 @@ std::vector<char> NiceBusT4::raw_cmd_prepare (std::string data) { // подго�
 }
 
 
-void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отправляет break + подготоаленную ранее в массиве команду
+void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отправляет break + подготовленную ранее в массиве команду
   return send_array_cmd(data.data(), data.size());
 }
 void NiceBusT4::send_array_cmd (const char *data, size_t len) {
@@ -219,33 +375,33 @@ void NiceBusT4::send_array_cmd (const char *data, size_t len) {
   
   char br_ch = 0x00;                                               // для break
   uart_flush(_uart);                                               // очищаем uart
-  uart_set_baudrate(_uart, baud_break);                            // занижаем бодрэйт
+  uart_set_baudrate(_uart, BAUD_BREAK);                            // занижаем бодрэйт
   uart_write(_uart, &br_ch, 1);                                    // отправляем ноль на низкой скорости, длиинный ноль
   //uart_write(_uart, (char *)&dummy, 1);
   uart_wait_tx_empty(_uart);                                       // ждём, пока отправка завершится. Здесь в библиотеке uart.h (esp8266 core 3.0.2) ошибка, ожидания недостаточно при дальнейшем uart_set_baudrate().
   delayMicroseconds(90);                                          // добавляем задержку к ожиданию, иначе скорость переключится раньше отправки. С задержкой 83us на d1-mini я получил идеальный сигнал, break = 520us
-  uart_set_baudrate(_uart, baud_work);                             // возвращаем рабочий бодрэйт
-  uart_write(_uart, &data[0], len);                      // отправляем основную посылку
+  uart_set_baudrate(_uart, BAUD_WORK);                             // возвращаем рабочий бодрэйт
+  uart_write(_uart, &data[0], len);                                // отправляем основную посылку
   //uart_write(_uart, (char *)raw_cmd_buf, sizeof(raw_cmd_buf));
   uart_wait_tx_empty(_uart);                                       // ждем завершения отправки
 
   
-  std::string pretty_cmd = format_hex_pretty(&data[0], len);                    // для вывода команды в лог
+  std::string pretty_cmd = "00." + format_hex_pretty_(&data[0], len);                    // для вывода команды в лог
   ESP_LOGI(TAG,  "Отправлено: %S ", pretty_cmd.c_str() );
 
 }
 
 
 // работа со строками, взято из dev esphome/core/helpers.h, изменен тип на char
-  char NiceBusT4::format_hex_pretty_char(char v) { return v >= 10 ? 'A' + (v - 10) : '0' + v; }
-  std::string NiceBusT4::format_hex_pretty(const char *data, size_t length) {
+  char NiceBusT4::format_hex_pretty_char_(char v) { return v >= 10 ? 'A' + (v - 10) : '0' + v; }
+  std::string NiceBusT4::format_hex_pretty_(const char *data, size_t length) {
   if (length == 0)
     return "";
   std::string ret;
   ret.resize(3 * length - 1);
   for (size_t i = 0; i < length; i++) {
-    ret[3 * i] = format_hex_pretty_char((data[i] & 0xF0) >> 4);
-    ret[3 * i + 1] = format_hex_pretty_char(data[i] & 0x0F);
+    ret[3 * i] = format_hex_pretty_char_((data[i] & 0xF0) >> 4);
+    ret[3 * i + 1] = format_hex_pretty_char_(data[i] & 0x0F);
     if (i != length - 1)
       ret[3 * i + 2] = '.';
   }
@@ -253,127 +409,27 @@ void NiceBusT4::send_array_cmd (const char *data, size_t len) {
     return ret + " (" + to_string(length) + ")";
   return ret;
   }
-  std::string NiceBusT4::format_hex_pretty(std::vector<char> data) { return format_hex_pretty(data.data(), data.size()); }
+  std::string NiceBusT4::format_hex_pretty_(std::vector<char> data) { return format_hex_pretty_(data.data(), data.size()); }
 
-
-
-
-
-
-
-/** Parse bytes from a hex-encoded string into a byte array.
-
-   When \p len is less than \p 2*count, the result is written to the back of \p data (i.e. this function treats \p str
-   as if it were padded with zeros at the front).
-
-   @param str String to read from.
-   @param len Length of \p str (excluding optional null-terminator), is a limit on the number of characters parsed.
-   @param data Byte array to write to.
-   @param count Length of \p data.
-   @return The number of characters parsed from \p str.
-*/
-/*
-  static size_t parse_hex(const char *str, size_t length, uint8_t *data, size_t count) {
-  uint8_t val;
-  size_t chars = std::min(length, 2 * count);
-  for (size_t i = 2 * count - chars; i < 2 * count; i++, str++) {
-    if (*str >= '0' && *str <= '9')
-      val = *str - '0';
-    else if (*str >= 'A' && *str <= 'F')
-      val = 10 + (*str - 'A');
-    else if (*str >= 'a' && *str <= 'f')
-      val = 10 + (*str - 'a');
-    else
-      return 0;
-    data[i >> 1] = !(i & 1) ? val << 4 : data[i >> 1] | val;
-  }
-  return chars;
-  }
-*/
-
-// работа со строками
-
-
-/** Parse bytes from a hex-encoded string into a byte array.
-
-   When \p len is less than \p 2*count, the result is written to the back of \p data (i.e. this function treats \p str
-   as if it were padded with zeros at the front).
-
-   @param str String to read from.
-   @param len Length of \p str (excluding optional null-terminator), is a limit on the number of characters parsed.
-   @param data Byte array to write to.
-   @param count Length of \p data.
-   @return The number of characters parsed from \p str.
-*/
-
-/*
-
-  static size_t parse_hex(const char *str, size_t len, uint8_t *data, size_t count);
-  /// Parse \p count bytes from the hex-encoded string \p str of at least \p 2*count characters into array \p data.
-    inline bool parse_hex(const char *str, uint8_t *data, size_t count) {
-      return parse_hex(str, strlen(str), data, count) == 2 * count;
-    }
-  /// Parse \p count bytes from the hex-encoded string \p str of at least \p 2*count characters into array \p data.
-    inline bool parse_hex(const std::string &str, uint8_t *data, size_t count) {
-      return parse_hex(str.c_str(), str.length(), data, count) == 2 * count;
-    }
-  /// Parse \p count bytes from the hex-encoded string \p str of at least \p 2*count characters into vector \p data.
-    inline bool parse_hex(const char *str, std::vector<uint8_t> &data, size_t count) {
-       data.resize(count);
-      return parse_hex(str, strlen(str), data.data(), count) == 2 * count;
-    }
-  /// Parse \p count bytes from the hex-encoded string \p str of at least \p 2*count characters into vector \p data.
-    inline bool parse_hex(const std::string &str, std::vector<uint8_t> &data, size_t count) {
-      data.resize(count);
-      return parse_hex(str.c_str(), str.length(), data.data(), count) == 2 * count;
-    }
-
-
-
-
-
-
-  /// Format the byte array \p data of length \p len in lowercased hex.
-  static std::string format_hex(const uint8_t *data, size_t length);
-  /// Format the vector \p data in lowercased hex.
-  static std::string format_hex(std::vector<uint8_t> data);
-  /// Format an unsigned integer in lowercased hex, starting with the most significant byte.
-  template<typename T, enable_if_t<std::is_unsigned<T>::value, int> = 0> std::string format_hex(T val) {
-  val = convert_big_endian(val);
-  return format_hex(reinterpret_cast<uint8_t *>(&val), sizeof(T));
-  }
-
-
-
-
-  /// Format the byte array \p data of length \p len in pretty-printed, human-readable hex.
-  static std::string format_hex_pretty(const uint8_t *data, size_t length);
-  /// Format the vector \p data in pretty-printed, human-readable hex.
-  static std::string format_hex_pretty(std::vector<uint8_t> data);
-  /// Format an unsigned integer in pretty-printed, human-readable hex, starting with the most significant byte.
-  template<typename T, enable_if_t<std::is_unsigned<T>::value, int> = 0> std::string format_hex_pretty(T val) {
-  val = convert_big_endian(val);
-  return format_hex_pretty(reinterpret_cast<uint8_t *>(&val), sizeof(T));
-  }
-
-
-
-
-
-
-  static char format_hex_char(uint8_t v) { return v >= 10 ? 'a' + (v - 10) : '0' + v; }
-  std::string format_hex(const uint8_t *data, size_t length) {
+char NiceBusT4::format_hex_pretty_char_uint8_t(uint8_t v) { return v >= 10 ? 'A' + (v - 10) : '0' + v; }
+std::string NiceBusT4::format_hex_pretty_uint8_t(const uint8_t *data, size_t length) {
+  if (length == 0)
+    return "";
   std::string ret;
-  ret.resize(length * 2);
+  ret.resize(3 * length - 1);
   for (size_t i = 0; i < length; i++) {
-    ret[2 * i] = format_hex_char((data[i] & 0xF0) >> 4);
-    ret[2 * i + 1] = format_hex_char(data[i] & 0x0F);
+    ret[3 * i] = format_hex_pretty_char_uint8_t((data[i] & 0xF0) >> 4);
+    ret[3 * i + 1] = format_hex_pretty_char_uint8_t(data[i] & 0x0F);
+    if (i != length - 1)
+      ret[3 * i + 2] = '.';
   }
+  if (length > 4)
+    return ret + " (" + to_string(length) + ")";
   return ret;
-  }
-  std::string format_hex(std::vector<uint8_t> data) { return format_hex(data.data(), data.size()); }
+}
 
-*/
+
+
 
 }  // namespace bus_t4
 }  // namespace esphome
