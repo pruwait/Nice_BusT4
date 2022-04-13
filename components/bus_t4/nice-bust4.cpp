@@ -126,12 +126,13 @@ void NiceBusT4::loop() {
   
   if ((millis() - this->last_update_) > this->update_interval_) {
      
-    if (this->last_init_command_ <30 ) {
+    if (this->last_init_command_ <36 ) {
       if (last_init_command_ == 2  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d"); // запрос типа привода 
-      if (last_init_command_ == 6  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d"); // запрос производителя
-      if (last_init_command_ == 10  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
-      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
-      if (last_init_command_ == 20  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
+      if (last_init_command_ == 8  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d"); // запрос производителя
+      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
+      if (last_init_command_ == 20  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
+      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
      
          
      this->last_init_command_++;         
@@ -371,7 +372,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Пакет с данными: %S ", str.c_str() );
       
       
-    if ((data[9] == 0x00) && (data[11] == 0x19)){
+    if ((data[9] == 0x00) && (data[11] == 0x19)){ //if2
         
         switch (data[10]) {
 	      case 0x08:
@@ -392,7 +393,26 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           break;            
 	    }  // switch
     } //if2 
+    
+    // ответ на запрос положения концевика откатных ворот
+    if ((data[9] == 0x04) && (data[10] == 0xd1) && (data[11] == 0x19)){ //if3
+        switch (data[16]) {
+	      case 0x00:
+             ESP_LOGCONFIG(TAG, "  Концевик не сработал ");
+//          this->manufacturer_.assign(this->rx_message_.begin()+14,this->rx_message_.end()-2);
+          break;
+          case 0x01:
+             ESP_LOGCONFIG(TAG, "  Концевик на закрытие ");
+             this->position = COVER_CLOSED;
+          break;
+          case 0x02:
+             ESP_LOGCONFIG(TAG, "  Концевик на открытие ");
+             this->position = COVER_OPEN;
+          break;
 
+        }  // switch 
+    this->publish_state();  // публикуем состояние    
+    } //if3
   } //if	
 
 
