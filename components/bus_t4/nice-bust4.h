@@ -332,3 +332,4 @@ class NiceBusT4 : public Component, public Cover {
 
 } // namespace bus_t4
 } // namespace esphome
+ 
