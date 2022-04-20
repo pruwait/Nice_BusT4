@@ -450,16 +450,20 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	      case OPENED:
 	        ESP_LOGCONFIG(TAG, "  Ворота открыты");
 	        this->position = COVER_OPEN;
+	        this->current_operation = COVER_OPERATION_IDLE;
 	      break;
 	      case CLOSED:
 	        ESP_LOGCONFIG(TAG, "  Ворота закрыты");
 	        this->position = COVER_CLOSED;
+	        this->current_operation = COVER_OPERATION_IDLE;
 	      break;
 	      case 0x01:
 	        ESP_LOGCONFIG(TAG, "  Ворота остановлены");
+	        this->current_operation = COVER_OPERATION_IDLE;
 //	        this->position = COVER_OPEN;
 	      break;			     
 	     }  // switch
+	     this->publish_state();  // публикуем состояние    
     }
 	  
   } //if	пакет данных
