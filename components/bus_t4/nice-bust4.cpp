@@ -126,14 +126,15 @@ void NiceBusT4::loop() {
   
   if ((millis() - this->last_update_) > this->update_interval_) {
      
-    if (this->last_init_command_ <36 ) {
-      if (last_init_command_ == 2  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d"); // запрос типа привода 
-      if (last_init_command_ == 8  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d"); // запрос производителя
-      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
-      if (last_init_command_ == 20  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+    if (this->last_init_command_ <46 ) {
+      if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
+      if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального открывания откатных ворот
+      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
+      if (last_init_command_ == 20  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
       if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
-      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
-     
+      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
+      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
+      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
          
      this->last_init_command_++;         
      }
@@ -420,6 +421,24 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
      
     } //if
      
+    if ((data[9] == 0x04) && (data[10] == 0x01)  && (data[11] == 0x19) && (data[13] == 0x00)){ //if состояние ворот	  
+	
+	     switch (data[14]) {
+	      case 0x04:
+	        ESP_LOGCONFIG(TAG, "  Ворота открыты");
+	        this->position = COVER_OPEN;
+	      break;
+	      case 0x05:
+	        ESP_LOGCONFIG(TAG, "  Ворота закрыты");
+	        this->position = COVER_CLOSED;
+	      break;
+	      case 0x00:
+	        ESP_LOGCONFIG(TAG, "  Ворота остановлены");
+//	        this->position = COVER_OPEN;
+	      break;			     
+	     }  // switch
+    }
+	  
   } //if	пакет данных
 
 
