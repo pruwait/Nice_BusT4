@@ -155,6 +155,8 @@ enum run_cmd : uint8_t {
 enum Status : uint8_t {
   OPENING  = 0x83,
   CLOSING  = 0x84,
+  OPENING2  = 0x02,
+  CLOSING2  = 0x05,	
   OPENED   = 0x04,
   CLOSED   = 0x05,
   STOPPED   = 0x88,
