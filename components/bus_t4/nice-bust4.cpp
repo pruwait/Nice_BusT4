@@ -335,26 +335,34 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	    this->current_operation = COVER_OPERATION_OPENING;
 		ESP_LOGD(TAG, "Статус: Открывается");
           break;
+  	switch (data[11]) {
+	  case OPENING2:
+	    this->current_operation = COVER_OPERATION_OPENING;
+		ESP_LOGD(TAG, "Статус: Открывается");
+          break;
 			
 	  case CLOSING:
 	    this->current_operation = COVER_OPERATION_CLOSING;
 		ESP_LOGD(TAG, "Статус: Закрывается");
-        break;
-			
-	  case OPENED:
-//   this->position = COVER_OPEN;
-//   this->current_operation = COVER_OPERATION_IDLE;
-//ESP_LOGD(TAG, "Статус: Открыто");
-	    this->current_operation = COVER_OPERATION_OPENING;
-		ESP_LOGD(TAG, "Статус: Открывается");			
-        break;
-	  case CLOSED:
-//	    this->position = COVER_CLOSED;
-//	    this->current_operation = COVER_OPERATION_IDLE;
-//		ESP_LOGD(TAG, "Статус: Закрыто");
+           break;
+	  case CLOSING2:
 	    this->current_operation = COVER_OPERATION_CLOSING;
-		ESP_LOGD(TAG, "Статус: Закрывается");		
-        break;
+		ESP_LOGD(TAG, "Статус: Закрывается");
+           break;			
+	  case OPENED:
+            this->position = COVER_OPEN;
+            this->current_operation = COVER_OPERATION_IDLE;
+            ESP_LOGD(TAG, "Статус: Открыто");
+//	    this->current_operation = COVER_OPERATION_OPENING;
+//		ESP_LOGD(TAG, "Статус: Открывается");			
+          break;
+	  case CLOSED:
+	    this->position = COVER_CLOSED;
+	    this->current_operation = COVER_OPERATION_IDLE;
+	    ESP_LOGD(TAG, "Статус: Закрыто");
+//	    this->current_operation = COVER_OPERATION_CLOSING;
+		//ESP_LOGD(TAG, "Статус: Закрывается");		
+          break;
 	  case STOPPED:
 	    this->current_operation = COVER_OPERATION_IDLE;
 		ESP_LOGD(TAG, "Статус: Остановлено");
