@@ -335,7 +335,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	    this->current_operation = COVER_OPERATION_OPENING;
 		ESP_LOGD(TAG, "Статус: Открывается");
           break;
-  	switch (data[11]) {
+  	
 	  case OPENING2:
 	    this->current_operation = COVER_OPERATION_OPENING;
 		ESP_LOGD(TAG, "Статус: Открывается");
