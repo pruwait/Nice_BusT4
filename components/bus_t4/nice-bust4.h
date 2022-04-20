@@ -114,8 +114,8 @@ enum cmd_submnu  : uint8_t {
   TYPE_M = 0x00,   // Запрос типа привода
   CUR_MAN = 0x02,  // Текущий Маневр
   SUBMNU  = 0x04,  // Подменю
-  SW_CTRL = 0x11,   // Контроль SWING ?
-  SW_POS = 0x18,   // Положения SWING ?
+//  SW_CTRL = 0x11,   // Контроль SWING ?
+//  SW_POS = 0x18,   // Положения SWING ?
   STA = 0x40,   // статус в движении
   MAIN_SET = 0x80,   // Основные параметры
   RUN = 0x82,   // Команда для выполнения
@@ -125,6 +125,8 @@ enum cmd_submnu  : uint8_t {
   HWR = 0x0a,   // hardware version.
   FRM = 0x0b,   // firmware version.
   DSC = 0x0c,   // description.
+  MAX_OPN = 0x12,   // Максимальное открывание в метрах.
+  CUR_POS = 0x11,  // текущее положение автоматики в метрах
   
 };
 
@@ -292,7 +294,7 @@ class NiceBusT4 : public Component, public Cover {
     // переменные для uart
     uint8_t _uart_nr;
     uart_t* _uart = nullptr;
-
+    uint16_t _max_opn = 0;  // максимальное открытие в миллиметрах, не для всех приводов
    /* 
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
 	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
@@ -332,4 +334,3 @@ class NiceBusT4 : public Component, public Cover {
 
 } // namespace bus_t4
 } // namespace esphome
- 
