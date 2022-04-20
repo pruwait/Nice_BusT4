@@ -413,7 +413,14 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         }  // switch 
     this->publish_state();  // публикуем состояние    
     } //if3
-  } //if	
+    
+    if ((data[9] == 0x04) && (data[10] == 0x12)  && (data[11] == 0x19) && (data[13] == 0x00)){ //if положение максимального открытия
+    
+     this->_max_opn = (data[14]<<8) + data[15];
+     
+    } //if
+     
+  } //if	пакет данных
 
 
 
@@ -531,6 +538,8 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
         ESP_LOGCONFIG(TAG, "  Тип: Неизвестные ворота, 0x%02X", this->class_gate_);
   } // switch
   
+  
+  ESP_LOGCONFIG(TAG, "  Максимальное открывание: %d ", this->_max_opn);
   
   std::string manuf_str(this->manufacturer_.begin(),this->manufacturer_.end());
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());  
