@@ -539,7 +539,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   } // switch
   
   
-  ESP_LOGCONFIG(TAG, "  Максимальное открывание: %d ", this->_max_opn);
+  ESP_LOGCONFIG(TAG, "  Максимальное открывание: %d мм", this->_max_opn);
   
   std::string manuf_str(this->manufacturer_.begin(),this->manufacturer_.end());
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());  
