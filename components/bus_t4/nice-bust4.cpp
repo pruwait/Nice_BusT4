@@ -432,7 +432,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	        ESP_LOGCONFIG(TAG, "  Ворота закрыты");
 	        this->position = COVER_CLOSED;
 	      break;
-	      case 0x00:
+	      case 0x01:
 	        ESP_LOGCONFIG(TAG, "  Ворота остановлены");
 //	        this->position = COVER_OPEN;
 	      break;			     
