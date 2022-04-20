@@ -424,11 +424,11 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     if ((data[9] == 0x04) && (data[10] == 0x01)  && (data[11] == 0x19) && (data[13] == 0x00)){ //if состояние ворот	  
 	
 	     switch (data[14]) {
-	      case 0x04:
+	      case OPENED:
 	        ESP_LOGCONFIG(TAG, "  Ворота открыты");
 	        this->position = COVER_OPEN;
 	      break;
-	      case 0x05:
+	      case CLOSED:
 	        ESP_LOGCONFIG(TAG, "  Ворота закрыты");
 	        this->position = COVER_CLOSED;
 	      break;
