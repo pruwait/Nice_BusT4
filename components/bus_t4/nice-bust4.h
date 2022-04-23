@@ -298,7 +298,8 @@ class NiceBusT4 : public Component, public Cover {
     uart_t* _uart = nullptr;
     uint16_t _max_opn = 0;  // максимальная позиция открытия в миллиметрах, не для всех приводов
     uint16_t _pos_opn = 0;  // позиция открытия в миллиметрах, не для всех приводов	
-    uint16_t _pos_cls = 0;  // позиция закрытия в миллиметрах, не для всех приводов	
+    uint16_t _pos_cls = 0;  // позиция закрытия в миллиметрах, не для всех приводов
+    uint16_t _pos_usl = 0;  // условная текущая позиция энкодера, не для всех приводов	
    /* 
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
 	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
