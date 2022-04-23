@@ -1,8 +1,12 @@
 #отправляет пакеты через uart в шину Nice BUS T4
 #тест на Wemos D1 mini
 
+substitutions:
+  device_name: "nice-bust4-uart"
+
+
 esphome:
-  name: nice-bust4-uart
+  name: ${device_name}
   platform: ESP8266
   board: d1_mini
 
@@ -11,7 +15,7 @@ external_components:
   - source:
       type: git
       url: https://github.com/pruwait/Nice_BusT4
-
+#  - source: my_components
 
 
 # включаем отладку для поиска причины перезагрузки через лог
@@ -20,6 +24,7 @@ debug:
 # Enable logging
 logger:
   level: DEBUG
+#  level: VERBOSE
   baud_rate: 0
   
 # Enable Home Assistant API
@@ -53,7 +58,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "${device_name} Hotspot"
-    password: "!secret ota_pass"
+    password: !secret ota_pass
 
 
 
@@ -63,19 +68,31 @@ captive_portal:
 # Enable web server (can be disabled)
 web_server:
   port: 80
+  
+
 
 
 button:
   - platform: template
-    name: Open 
-    id: send_open
+    name: SBS 
+    id: send_sbs
     on_press:
       lambda: |-
-         my_nice_cover -> NiceBusT4::send_open();
+         my_nice_cover -> NiceBusT4::send_raw_cmd("55 0c 00 ff 00 66 01 05 9D 01 82 01 64 E6 0c");
         
+#     /*  my_nice_cover -> NICECover::send_open(); */        
         
+
+#uart:
+#  id: uart_bus
+#  tx_pin: 1
+#  rx_pin: 3
+#  baud_rate: 19200
+
 cover:
 - platform: bus_t4
-  name: "Nice Wingo 5000"
+#- platform: nice
+  name: "Nice SO2000"
+  device_class: garage
   id: "my_nice_cover"
 
