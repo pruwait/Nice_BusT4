@@ -324,8 +324,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   } //if
 
 
-  // статус после достижения концивиков
- if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP)&& (data[10] == CUR_MAN) && (data[11] == 0x04) && (data[12] == 0x00)) {  // узнаём пакет статуса по содержимому в определённых байтах
+  // статус после достижения концевиков
+ if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP)&& (data[10] == CUR_MAN) &&  (data[12] == 0x00)) {  // узнаём пакет статуса по содержимому в определённых байтах
   ESP_LOGD(TAG, "Получен пакет концевиков. Статус = %#x", data[11]);	
 	 switch (data[11]) {
 		case OPENED:
