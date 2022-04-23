@@ -263,7 +263,7 @@ class NiceBusT4 : public Component, public Cover {
     void setup() override;
     void loop() override;
     void dump_config() override; // для вывода в лог информации об оборудовнии
-    void send_open();
+//    void send_open();
     void send_raw_cmd(std::string data);
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
 
@@ -296,7 +296,9 @@ class NiceBusT4 : public Component, public Cover {
     // переменные для uart
     uint8_t _uart_nr;
     uart_t* _uart = nullptr;
-    uint16_t _max_opn = 0;  // максимальное открытие в миллиметрах, не для всех приводов
+    uint16_t _max_opn = 0;  // максимальная позиция открытия в миллиметрах, не для всех приводов
+    uint16_t _pos_opn = 0;  // позиция открытия в миллиметрах, не для всех приводов	
+    uint16_t _pos_cls = 0;  // позиция закрытия в миллиметрах, не для всех приводов	
    /* 
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
 	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
