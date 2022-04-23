@@ -327,10 +327,19 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   // статус после достижения концивиков
  if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP)&& (data[10] == CUR_MAN) && (data[11] == 0x04) && (data[12] == 0x00)) {  // узнаём пакет статуса по содержимому в определённых байтах
   ESP_LOGD(TAG, "Получен пакет концевиков. Статус = %#x", data[11]);	
-  this->position = COVER_OPEN;
-  ESP_LOGD(TAG, "Статус: Открыто");
-  this->current_operation = COVER_OPERATION_IDLE;		 
-  this->publish_state();  // публикуем состояние
+	 switch (data[11]) {
+		case OPENED:
+  			this->position = COVER_OPEN;
+  			ESP_LOGD(TAG, "Статус: Открыто");
+  			this->current_operation = COVER_OPERATION_IDLE;		 
+  			break;
+		case CLOSED:
+  			this->position = COVER_CLOSED;
+  			ESP_LOGD(TAG, "Статус: Закрыто");
+  			this->current_operation = COVER_OPERATION_IDLE;		 
+  			break;
+	 } //switch
+	 this->publish_state();  // публикуем состояние
   } //if
 
 // STA = 0x40,   // статус в движении
