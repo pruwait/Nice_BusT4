@@ -479,8 +479,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 					
 		case 0x11:
      			this->_pos_usl = (data[14]<<8) + data[15];
-			this->position = (_pos_usl-_pos_cls)/(_pos_opn-_pos_cls);
-			ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl-_pos_cls)/(_pos_opn-_pos_cls));
+			this->position = (_pos_usl-_pos_cls)*1.0f/(_pos_opn-_pos_cls);
+			ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl-_pos_cls)*1.0f/(_pos_opn-_pos_cls));
 			this->publish_state();  // публикуем состояние  
 			
 		break;
