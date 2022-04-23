@@ -338,6 +338,14 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   			ESP_LOGD(TAG, "Статус: Закрыто");
   			this->current_operation = COVER_OPERATION_IDLE;		 
   			break;
+		case OPENING:
+	    		this->current_operation = COVER_OPERATION_OPENING;
+			ESP_LOGD(TAG, "Статус: Открывается");
+          		break;
+		case CLOSING:
+	     		this->current_operation = COVER_OPERATION_CLOSING;
+			ESP_LOGD(TAG, "Статус: Закрывается");
+        		break;
 	 } //switch
 	 this->publish_state();  // публикуем состояние
   } //if
