@@ -465,6 +465,19 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 		case 0x12:
      			this->_max_opn = (data[14]<<8) + data[15];
 			ESP_LOGD(TAG, "Максимальное положение энкодера: %d", this->_max_opn);
+		break;
+			
+		case 0x19:
+     			this->_pos_cls = (data[14]<<8) + data[15];
+			ESP_LOGD(TAG, "Положение закрытых ворот: %d", this->_pos_cls);
+		break;
+			
+		case 0x18:
+     			this->_pos_opn = (data[14]<<8) + data[15];
+			ESP_LOGD(TAG, "Положение открытых ворот: %d", this->_pos_opn);
+		break;
+					
+			
      	 }  // switch 
     } //if
      
@@ -609,9 +622,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   } // switch
   
   
-  ESP_LOGCONFIG(TAG, "  Максимальная позиция привода: %d", this->_max_opn);
-  ESP_LOGCONFIG(TAG, "  Позиция открытия привода: %d", this->_pos_opn);
-  ESP_LOGCONFIG(TAG, "  Позиция закрытия привода: %d", this->_pos_cls);
+  ESP_LOGCONFIG(TAG, "  Максимальное положение энкодера: %d", this->_max_opn);
+  ESP_LOGCONFIG(TAG, "  Положение отрытых ворот: %d", this->_pos_opn);
+  ESP_LOGCONFIG(TAG, "  Положение закрытых ворот: %d", this->_pos_cls);
   
   std::string manuf_str(this->manufacturer_.begin(),this->manufacturer_.end());
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());  
