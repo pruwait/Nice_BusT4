@@ -59,6 +59,7 @@ void NiceBusT4::control(const CoverCall &call) {
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
 	send_raw_cmd("55.0C.00.FF.00.66.01.05.9D.01.82.02.64.E5.0C");   // пока здесь дамп stop
+	send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
 	send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.11.99.00.00.8C.0d");   // запрос условного текущего положения привода
 	    
 //	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп stop
