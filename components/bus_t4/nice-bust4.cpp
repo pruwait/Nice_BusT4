@@ -58,7 +58,7 @@ PARENTAL OPEN 2   55 0c 00 ff 00 66 01 05 9D 01 82 06 64 E1 0c
 void NiceBusT4::control(const CoverCall &call) {  
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
-	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп sbs
+	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп stop
 	  std::vector < char > v_cmd = raw_cmd_prepare (data);
       this->send_array_cmd (&v_cmd[0], v_cmd.size());
       
