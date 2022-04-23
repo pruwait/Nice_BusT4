@@ -477,7 +477,15 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 			ESP_LOGD(TAG, "Положение открытых ворот: %d", this->_pos_opn);
 		break;
 					
+		case 0x11:
+     			this->_pos_usl = (data[14]<<8) + data[15];
+			this->position = (_pos_usl-_pos_cls)/(_pos_opn-_pos_cls);
+			ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %: %d", this->_pos_usl, this->position);
+			this->publish_state();  // публикуем состояние  
 			
+		break;
+			
+//			55.0d.FF.FF.00.66.08.06.68.04.11.99.00.00.8C.0d
      	 }  // switch 
     } //if
      
@@ -630,7 +638,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());  
   
   std::string prod_str(this->product_.begin(),this->product_.end());
-  ESP_LOGCONFIG(TAG, "  Контроллер: %S ", prod_str.c_str());  
+  ESP_LOGCONFIG(TAG, "  Приёмник: %S ", prod_str.c_str());  
   
   std::string hard_str(this->hardware_.begin(),this->hardware_.end());
   ESP_LOGCONFIG(TAG, "  Железо: %S ", hard_str.c_str());  
