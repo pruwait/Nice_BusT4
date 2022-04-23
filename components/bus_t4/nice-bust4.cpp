@@ -58,9 +58,11 @@ PARENTAL OPEN 2   55 0c 00 ff 00 66 01 05 9D 01 82 06 64 E1 0c
 void NiceBusT4::control(const CoverCall &call) {  
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
-	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп stop
-	  std::vector < char > v_cmd = raw_cmd_prepare (data);
-      this->send_array_cmd (&v_cmd[0], v_cmd.size());
+	send_raw_cmd("55.0C.00.FF.00.66.01.05.9D.01.82.02.64.E5.0C");   // пока здесь дамп stop
+	send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.11.99.00.00.8C.0d");   // запрос условного текущего положения привода
+//	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп stop
+//	  std::vector < char > v_cmd = raw_cmd_prepare (data);
+//      this->send_array_cmd (&v_cmd[0], v_cmd.size());
       
     } else if (call.get_position().has_value()) {
       auto pos = *call.get_position();
@@ -126,15 +128,18 @@ void NiceBusT4::loop() {
   
   if ((millis() - this->last_update_) > this->update_interval_) {
      
-    if (this->last_init_command_ <46 ) {
+    if (this->last_init_command_ < 46 ) {
       if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
-      if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
-      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
-      if (last_init_command_ == 20  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
-      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
-      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
-      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
-      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+      if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
+      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
+//      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
+      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.18.99.00.00.85.0d");  //запрос позиции открытия
+      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.19.99.00.00.84.0d");  // запрос позиции закрытия
+//      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
+//      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
+//      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
+//      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+      	    
          
      this->last_init_command_++;         
      }
@@ -439,15 +444,15 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     if ((data[9] == 0x04) && (data[10] == 0xd1) && (data[11] == 0x19)){ //if3
         switch (data[16]) {
 	      case 0x00:
-             ESP_LOGCONFIG(TAG, "  Концевик не сработал ");
+             ESP_LOGD(TAG, "  Концевик не сработал ");
 //          this->manufacturer_.assign(this->rx_message_.begin()+14,this->rx_message_.end()-2);
           break;
           case 0x01:
-             ESP_LOGCONFIG(TAG, "  Концевик на закрытие ");
+             ESP_LOGD(TAG, "  Концевик на закрытие ");
              this->position = COVER_CLOSED;
           break;
           case 0x02:
-             ESP_LOGCONFIG(TAG, "  Концевик на открытие ");
+             ESP_LOGD(TAG, "  Концевик на открытие ");
              this->position = COVER_OPEN;
           break;
 
@@ -455,27 +460,29 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     this->publish_state();  // публикуем состояние    
     } //if3
     
-    if ((data[9] == 0x04) && (data[10] == 0x12)  && (data[11] == 0x19) && (data[13] == 0x00)){ //if положение максимального открытия
-    
-     this->_max_opn = (data[14]<<8) + data[15];
-     
+    if ((data[6] == 0x08) && (data[9] == 0x04)  && (data[11] == 0x19) && (data[13] == 0x00)){ //положение максимального открытия энкодера, открытия, закрытия
+    	switch (data[10]) {
+		case 0x12:
+     			this->_max_opn = (data[14]<<8) + data[15];
+			ESP_LOGD(TAG, "Максимальное положение энкодера: %d", this->_max_opn);
+     	 }  // switch 
     } //if
      
     if ((data[9] == 0x04) && (data[10] == 0x01)  && (data[11] == 0x19) && (data[13] == 0x00)){ //if состояние ворот	  
 	
 	     switch (data[14]) {
 	      case OPENED:
-	        ESP_LOGCONFIG(TAG, "  Ворота открыты");
+	        ESP_LOGD(TAG, "  Ворота открыты");
 	        this->position = COVER_OPEN;
 	        this->current_operation = COVER_OPERATION_IDLE;
 	      break;
 	      case CLOSED:
-	        ESP_LOGCONFIG(TAG, "  Ворота закрыты");
+	        ESP_LOGD(TAG, "  Ворота закрыты");
 	        this->position = COVER_CLOSED;
 	        this->current_operation = COVER_OPERATION_IDLE;
 	      break;
 	      case 0x01:
-	        ESP_LOGCONFIG(TAG, "  Ворота остановлены");
+	        ESP_LOGD(TAG, "  Ворота остановлены");
 	        this->current_operation = COVER_OPERATION_IDLE;
 //	        this->position = COVER_OPEN;
 	      break;			     
@@ -602,7 +609,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   } // switch
   
   
-  ESP_LOGCONFIG(TAG, "  Максимальное открывание: %d мм", this->_max_opn);
+  ESP_LOGCONFIG(TAG, "  Максимальная позиция привода: %d", this->_max_opn);
+  ESP_LOGCONFIG(TAG, "  Позиция открытия привода: %d", this->_pos_opn);
+  ESP_LOGCONFIG(TAG, "  Позиция закрытия привода: %d", this->_pos_cls);
   
   std::string manuf_str(this->manufacturer_.begin(),this->manufacturer_.end());
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());  
@@ -620,15 +629,15 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
 }
 
 
-void NiceBusT4::send_open() {             // функция для отладки компонента при написании
+//void NiceBusT4::send_open() {             // функция для отладки компонента при написании
 
-  std::string  to_hex = "55 0c 00 ff 00 0a 01 05 F1 01 82 01 64 E6 0c";
-// 55.0D.FF.FF.00.88.08.06.86.04.00.99.00.00.9D.0D
+//  std::string  to_hex = "55 0c 00 ff 00 0a 01 05 F1 01 82 01 64 E6 0c";
 
-  std::vector < char > v_cmd = raw_cmd_prepare (to_hex);
-  send_array_cmd (&v_cmd[0], v_cmd.size());
 
-}
+//  std::vector < char > v_cmd = raw_cmd_prepare (to_hex);
+//  send_array_cmd (&v_cmd[0], v_cmd.size());
+
+//}
 
 void NiceBusT4::send_raw_cmd(std::string data) {
 
