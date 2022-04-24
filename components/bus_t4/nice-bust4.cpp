@@ -87,7 +87,7 @@ void NiceBusT4::control(const CoverCall &call) {
 
 void NiceBusT4::setup() {
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
-  
+  delay (1000);
    this->last_init_command_ = 0;
  // запрос типа привода 
 	this->tx_buffer_.push(gen_inf_cmd(0x04, 0x00, 0x99));
@@ -102,16 +102,16 @@ void NiceBusT4::setup() {
 	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x09, 0x99));
   
   //запрос железа
-  this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
+  //this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
 
 	//Состояние ворот (Открыто/Закрыто/Остановлено)
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
+  //this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
   
 	//запрос позиции открытия
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
+  //this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
 	
 	// запрос позиции закрытия
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
+ // this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
   //запрос описания
 //v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0c.99.00.00.95.0d");
 //send_array_cmd (&v_cmd[0], v_cmd.size());
