@@ -665,12 +665,19 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
 //}
 
 	
-std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t command) {	 //формирование команды управления
+std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {	 //формирование команды управления
   std::vector<uint8_t> frame = {(uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
   frame.push_back(CMD);  // 0x01
   frame.push_back(0x05); 
   uint8_t crc1 = (frame[0]^frame[1]^frame[2]^frame[3]^frame[4]^frame[5]);
   frame.push_back(crc1);
+  frame.push_back(0x04);
+  frame.push_back(control_cmd);
+  frame.push_back(0x99);
+  frame.push_back(0x00);	
+  uint8_t crc2 = (frame[7]^frame[8]^frame[9]^frame[10]);	
+  frame.push_back(crc2);	
+	
 	
 // для вывода команды в лог
   std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
