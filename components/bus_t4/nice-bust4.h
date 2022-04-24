@@ -50,6 +50,7 @@ BusT4                       ESP8266
 #include "esphome/components/cover/cover.h"
 #include <HardwareSerial.h>
 #include "esphome/core/helpers.h"              // парсим строки встроенными инструментами
+#include <queue>                               // для работы с очередью
 
 
 
