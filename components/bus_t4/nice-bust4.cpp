@@ -676,6 +676,8 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t command) {	 //фо
   std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
   ESP_LOGI(TAG,  "Сформирована команда: %S ", pretty_cmd.c_str() );	
 	
+  return frame;
+	
 }	
 void NiceBusT4::send_raw_cmd(std::string data) {
 
