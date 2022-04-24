@@ -677,7 +677,10 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {	 //
   frame.push_back(0x00);	
   uint8_t crc2 = (frame[7]^frame[8]^frame[9]^frame[10]);	
   frame.push_back(crc2);	
-	
+  uint8_t f_size = frame.size();
+  frame.push_back(f_size);
+  frame.insert(frame.begin(), f_size);
+  frame.insert(frame.begin(), 0x55);
 	
 // для вывода команды в лог
   std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
