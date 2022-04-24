@@ -764,7 +764,7 @@ void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отпра
   return send_array_cmd(data.data(), data.size());
 }
 void NiceBusT4::send_array_cmd (std::vector<uint8_t> data) {          // отправляет break + подготовленную ранее в массиве команду
-  return send_array_cmd(data.data(), data.size());
+  return send_array_cmd((const char *)data.data(), data.size());
 }	
 void NiceBusT4::send_array_cmd (const char *data, size_t len) {
   // отправка данных в uart
