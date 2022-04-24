@@ -341,7 +341,9 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> hardware_;
     std::vector<uint8_t> firmware_;
 	
-    std::vector<uint8_t> gen_control_cmd(const uint8_t command);
+    std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len);	
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd(inf_cmd, run_cmd, {0x00}, 0 );} // для команд без данных
 
 }; //класс
 
