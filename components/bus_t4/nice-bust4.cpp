@@ -763,7 +763,7 @@ std::vector<char> NiceBusT4::raw_cmd_prepare (std::string data) { // подго�
 void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отправляет break + подготовленную ранее в массиве команду
   return send_array_cmd(data.data(), data.size());
 }
-void NiceBusT4::send_array_cmd (std::vector<uint_8t> data) {          // отправляет break + подготовленную ранее в массиве команду
+void NiceBusT4::send_array_cmd (std::vector<uint8_t> data) {          // отправляет break + подготовленную ранее в массиве команду
   return send_array_cmd(data.data(), data.size());
 }	
 void NiceBusT4::send_array_cmd (const char *data, size_t len) {
