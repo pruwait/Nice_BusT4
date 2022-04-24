@@ -325,6 +325,7 @@ class NiceBusT4 : public Component, public Cover {
 
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
+    uint32_t last_uart_byte_{0};
   //  uint8_t current_request_{GET_STATUS}; // осталось от dooya, возможно придется переписать согласно статусам от nice
     uint8_t last_published_op_;
     float last_published_pos_;
