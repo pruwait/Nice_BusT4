@@ -143,7 +143,7 @@ void NiceBusT4::loop() {
 //      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
     if (last_init_command_ == 45  ) { 
 	    std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
-	    std::vector<uint8_t> inf_cmd = gen_inf_cmd(0x04, 0x21, 0xA9, {0x04, 0x00}, 2);
+	    std::vector<uint8_t> inf_cmd = gen_inf_cmd(0x04, 0x08, 0x89);
     }
       	    
          
