@@ -648,7 +648,8 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   std::string firm_str(this->firmware_.begin(),this->firmware_.end());
   ESP_LOGCONFIG(TAG, "  Прошивка: %S ", firm_str.c_str());  
   
-  
+  ESP_LOGCONFIG(TAG, "  Адрес шлюза: %x", this->from_addr);
+  ESP_LOGCONFIG(TAG, "  Адрес привода: %x", this->to_addr);	
 }
 
 
