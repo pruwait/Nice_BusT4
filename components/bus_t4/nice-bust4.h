@@ -211,8 +211,8 @@ struct packet_cmd_body_t {
 struct packet_inf_body_t {
   uint8_t byte_55;              // Заголовок, всегда 0x55
   uint8_t pct_size1;                // размер тела пакета (без заголовка и CRC. Общее количество  байт минус три), для inf = 0x0d
-  uint8_t for_series;           // серия кому пакет ff = всем
-  uint8_t for_address;          // адрес кому пакет ff = всем
+  uint8_t to_series;           // серия кому пакет ff = всем
+  uint8_t to_address;          // адрес кому пакет ff = всем
   uint8_t from_series;           // серия от кого пакет
   uint8_t from_address;          // адрес от кого пакет
   uint8_t mes_type;           // тип сообщения, 1 = CMD, 8 = INF
@@ -234,8 +234,8 @@ struct packet_inf_body_t {
 struct packet_gey_set_body_t {
   uint8_t byte_55;              // Заголовок, всегда 0x55
   uint8_t pct_size1;                // размер тела пакета (без заголовка и CRC. Общее количество  байт минус три), >= 0x0e
-  uint8_t for_series;           // серия кому пакет ff = всем
-  uint8_t for_address;          // адрес кому пакет ff = всем
+  uint8_t to_series;           // серия кому пакет ff = всем
+  uint8_t to_address;          // адрес кому пакет ff = всем
   uint8_t from_series;           // серия от кого пакет
   uint8_t from_address;          // адрес от кого пакет
   uint8_t mes_type;           // тип сообщения, для этих пакетов всегда  8 = INF
@@ -268,12 +268,13 @@ class NiceBusT4 : public Component, public Cover {
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
 
 
-/*    void set_address(uint16_t address) {
-      uint8_t start_code = START_CODE;
-      uint8_t address_h = (uint8_t)(address >> 8);
-      uint8_t address_l = (uint8_t)(address & 0xFF);
-      //    this->header_ = {&start_code, &address_h, &address_l};
-    } */
+    void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
+    void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 	
+//      uint8_t start_code = START_CODE;
+//      uint8_t address_h = (uint8_t)(to_address >> 8);
+//      uint8_t address_l = (uint8_t)(to_address & 0xFF);
+//      this->header_ = {&start_code, &address_h, &address_l};
+    
     void set_update_interval(uint32_t update_interval) {  // интервал получения статуса привода
       this->update_interval_ = update_interval;
     }
@@ -300,6 +301,9 @@ class NiceBusT4 : public Component, public Cover {
     uint16_t _pos_opn = 0;  // позиция открытия в миллиметрах, не для всех приводов	
     uint16_t _pos_cls = 0;  // позиция закрытия в миллиметрах, не для всех приводов
     uint16_t _pos_usl = 0;  // условная текущая позиция энкодера, не для всех приводов	
+    // настройки заголовка формируемого пакета
+    uint16_t from_addr = 0x0066; //от кого пакет, адрес bust4 шлюза
+    uint16_t to_addr = 0x00ff;	 // кому пакет, адрес контроллера привода, которым управляем
    /* 
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
 	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
@@ -330,6 +334,7 @@ class NiceBusT4 : public Component, public Cover {
     bool validate_message_();                                         // функция проверки полученного сообщения
 
 	std::vector<uint8_t> rx_message_;                          // здесь побайтно накапливается принятое сообщение
+	std::queue<std::vector<uint8_t>> tx_buffer_;             // очередь команд для отправки
 	std::vector<uint8_t> manufacturer_;
 	std::vector<uint8_t> product_;
 	std::vector<uint8_t> hardware_;
