@@ -141,7 +141,10 @@ void NiceBusT4::loop() {
 //      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
 //      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
 //      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
-    if (last_init_command_ == 45  ) std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
+    if (last_init_command_ == 45  ) { 
+	    std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
+	    std::vector<uint8_t> inf_cmd = gen_inf_cmd(0x04, 0x21, 0xA9, {0x04, 0x00}, 2);
+    }
       	    
          
      this->last_init_command_++;         
@@ -654,18 +657,10 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
 }
 
 
-//void NiceBusT4::send_open() {             // функция для отладки компонента при написании
-
-//  std::string  to_hex = "55 0c 00 ff 00 0a 01 05 F1 01 82 01 64 E6 0c";
 
 
-//  std::vector < char > v_cmd = raw_cmd_prepare (to_hex);
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
-
-//}
-
-	
-std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {	 //формирование команды управления
+//формирование команды управления
+std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {	 
   std::vector<uint8_t> frame = {(uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
   frame.push_back(CMD);  // 0x01
   frame.push_back(0x05); 
@@ -683,12 +678,44 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {	 //
   frame.insert(frame.begin(), 0x55);
 	
 // для вывода команды в лог
-  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
-  ESP_LOGI(TAG,  "Сформирована команда: %S ", pretty_cmd.c_str() );	
+//  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
+//  ESP_LOGI(TAG,  "Сформирована команда: %S ", pretty_cmd.c_str() );	
 	
   return frame;
-	
 }	
+	
+// формирование команды INF с данными и без
+std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len) {
+  std::vector<uint8_t> frame = {(uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
+  frame.push_back(INF);  // 0x08 mes_type
+  frame.push_back(0x06+len); 	 // mes_size
+  uint8_t crc1 = (frame[0]^frame[1]^frame[2]^frame[3]^frame[4]^frame[5]);
+  frame.push_back(crc1);
+  frame.push_back(cmd_mnu);
+  frame.push_back(inf_cmd);
+  frame.push_back(run_cmd);
+  frame.push_back(0x00); // Error
+  frame.push_back(len);
+  if (len>0) {frame.insert(frame.end(), data.begin(), data.end());} // блок данных
+  uint8_t crc2 = frame[7];
+	for (size_t i = 8; i < 12+len; i++) {
+   crc2 = crc2^frame[i];
+    }
+  frame.push_back(crc2);
+  uint8_t f_size = frame.size();
+  frame.push_back(f_size);
+  frame.insert(frame.begin(), f_size);
+  frame.insert(frame.begin(), 0x55);
+	
+  // для вывода команды в лог
+  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
+  ESP_LOGI(TAG,  "Сформирован INF пакет: %S ", pretty_cmd.c_str() );	
+	
+  return frame;	
+	
+ }
+	
+	
 void NiceBusT4::send_raw_cmd(std::string data) {
 
   std::vector < char > v_cmd = raw_cmd_prepare (data);
