@@ -91,40 +91,33 @@ void NiceBusT4::setup() {
    this->last_init_command_ = 0;
  // запрос типа привода 
 	this->tx_buffer_.push(gen_inf_cmd(0x04, 0x00, 0x99));
-//  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");
-  //std::string  to_hex = "55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d";
-//  std::vector < char > v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
-//  delay(1000);
   
   // запрос производителя
-//  v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
-//  delay(1000);
+	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x08, 0x99));
   
     // запрос прошивки
-//  v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
+	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0b, 0x99));
   
   //запрос продукта
-//  v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
+	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x09, 0x99));
   
   //запрос железа
-//  v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");
-//  send_array_cmd (&v_cmd[0], v_cmd.size());
+  this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
+
+	//Состояние ворот (Открыто/Закрыто/Остановлено)
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
   
-  
+	//запрос позиции открытия
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
+	
+	// запрос позиции закрытия
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
   //запрос описания
 //v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0c.99.00.00.95.0d");
 //send_array_cmd (&v_cmd[0], v_cmd.size());
   
   
-  
- // ESP_LOGCONFIG(TAG, "Setting up Nice ESP BusT4...");
-  /*  if (this->header_.empty()) {                                                             // заполняем адреса значениями по умолчанию, если они не указаны явно в конфигурации yaml
-      this->header_ = {(uint8_t *)&START_CODE, (uint8_t *)&DEF_ADDR, (uint8_t *)&DEF_ADDR};
-    }*/
+
 }
 
 void NiceBusT4::loop() {
@@ -134,14 +127,14 @@ void NiceBusT4::loop() {
     if (this->last_init_command_ < 46 ) { // команды при старте
    // if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
    // if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
-    if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
+  //  if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
 //      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
   //  if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.18.99.00.00.85.0d");  //запрос позиции открытия
   //  if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.19.99.00.00.84.0d");  // запрос позиции закрытия
 //      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
 //      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
 //      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
-      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+ //     if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
 //    if (last_init_command_ == 45  ) { 
 //	    std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
 //	    std::vector<uint8_t> inf_cmd = gen_inf_cmd(0x04, 0x08, 0x89); gen_inf_cmd(0x04, 0x00, 0x99);
@@ -542,78 +535,6 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
 
-
-/*
-  void NiceBusT4::on_rs485_data(const std::vector<uint8_t> &data) {
-  std::vector<uint8_t> frame(data.begin(), data.end() - 2);
-  uint16_t crc = crc16(&frame[0], frame.size());
-  if (((crc & 0xFF) == data.end()[-2]) && ((crc >> 8) == data.end()[-1])) {
-  switch (data[3]) {
-    case CONTROL:
-      switch (data[4]) {
-        case STOP:
-          this->current_operation = COVER_OPERATION_IDLE;
-          break;
-        case OPEN:
-          this->current_operation = COVER_OPERATION_OPENING;
-          break;
-        case CLOSE:
-          this->current_operation = COVER_OPERATION_CLOSING;
-          break;
-        case SET_POSITION:
-          if (data[5] > (uint8_t)(this->position * 100))
-            this->current_operation = COVER_OPERATION_OPENING;
-          else
-            this->current_operation = COVER_OPERATION_CLOSING;
-          break;
-        default:
-          ESP_LOGE(TAG, "Invalid control operation received");
-          return;
-      }
-      break;
-    case READ:
-      switch (this->current_request_) {
-        case GET_POSITION:
-          this->position = clamp((float) data[5] / 100, 0.0f, 1.0f);
-          this->current_request_ = GET_STATUS;
-          break;
-        case GET_STATUS:
-          switch (data[5]) {
-            case 0:
-              this->current_operation = COVER_OPERATION_IDLE;
-              break;
-            case 1:
-              this->current_operation = COVER_OPERATION_OPENING;
-              break;
-            case 2:
-              this->current_operation = COVER_OPERATION_CLOSING;
-              break;
-            default:
-              ESP_LOGE(TAG, "Invalid status operation received");
-              return;
-          }
-          this->current_request_ = GET_POSITION;
-          break;
-        default:
-          ESP_LOGE(TAG, "Invalid read operation received");
-          return;
-      }
-      break;
-    default:
-      ESP_LOGE(TAG, "Invalid data type received");
-      return;
-  }
-  if (this->current_operation != this->last_published_op_ || this->position != this->last_published_pos_) {
-    this->publish_state(false);
-    this->last_published_op_ = this->current_operation;
-    this->last_published_pos_ = this->position;
-  }
-  } else {
-  ESP_LOGE(TAG, "Incoming data CRC check failed");
-  }
-  }
-
-*/
 void NiceBusT4::send_command_(const uint8_t *data, uint8_t len) {                      // генерирует команду для отправки
   /*std::vector<uint8_t> frame = {START_CODE, *this->header_[1], *this->header_[2]};
     for (size_t i = 0; i < len; i++) {
