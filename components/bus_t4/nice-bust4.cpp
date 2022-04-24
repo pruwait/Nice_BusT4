@@ -131,16 +131,17 @@ void NiceBusT4::loop() {
   if ((millis() - this->last_update_) > this->update_interval_) {
      
     if (this->last_init_command_ < 46 ) {
-      if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
-      if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
-      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
+    if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
+    if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
+    if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
 //      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
-      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.18.99.00.00.85.0d");  //запрос позиции открытия
-      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.19.99.00.00.84.0d");  // запрос позиции закрытия
+    if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.18.99.00.00.85.0d");  //запрос позиции открытия
+    if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.19.99.00.00.84.0d");  // запрос позиции закрытия
 //      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
 //      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
 //      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
 //      if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
+    if (last_init_command_ == 45  ) std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
       	    
          
      this->last_init_command_++;         
@@ -663,6 +664,19 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
 
 //}
 
+	
+std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t command) {	 //формирование команды управления
+  std::vector<uint8_t> frame = {(uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
+  frame.push_back(CMD);  // 0x01
+  frame.push_back(0x05); 
+  uint8_t crc1 = (frame[0]^frame[1]^frame[2]^frame[3]^frame[4]^frame[5]);
+  frame.push_back(crc1);
+	
+// для вывода команды в лог
+  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
+  ESP_LOGI(TAG,  "Сформирована команда: %S ", pretty_cmd.c_str() );	
+	
+}	
 void NiceBusT4::send_raw_cmd(std::string data) {
 
   std::vector < char > v_cmd = raw_cmd_prepare (data);
