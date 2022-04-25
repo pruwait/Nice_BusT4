@@ -245,7 +245,23 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   
   }
   else {  // иначе пакет Responce - подтверждение полученной команды
-  
+	
+        switch (data[9]) { // cmd_mnu
+	  case SETUP:
+	    ESP_LOGI(TAG,  "Меню SETUP" );
+            break;
+	  case CONTROL:
+	    ESP_LOGI(TAG,  "Меню CONTROL" );
+            break;
+	  case CONTROL:
+	    ESP_LOGI(TAG,  "Меню ROOT" );
+            break;			
+			
+	  default:		
+	    ESP_LOGI(TAG,  "Меню %X", data[9] );	
+	 }  // switch
+       	  
+	  
   }
 	
 	
@@ -280,7 +296,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 // RSP ответ (ReSPonce) на простой прием команды CMD, а не ее выполнение. Также докладывает о завершении операции.
   if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP)&& (data[10] == CUR_MAN) && (data[12] == 0x19)) {  // узнаём пакет статуса по содержимому в определённых байтах
-  ESP_LOGD(TAG, "Получен пакет RSP. cmd = %#x", data[11]);
+//  ESP_LOGD(TAG, "Получен пакет RSP. cmd = %#x", data[11]);
   
   	switch (data[11]) {
 	  case OPENING:
