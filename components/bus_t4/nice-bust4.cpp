@@ -218,12 +218,14 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
 // Удаляем 0x00 в начале сообщения
 rx_message_.erase(rx_message_.begin());
 
+// для вывода пакета в лог
+ std::string pretty_cmd = format_hex_pretty(rx_message_);                   
+ ESP_LOGI(TAG,  "Ответ Nice: %S ", pretty_cmd.c_str() );	
+	
 // здесь что-то делаем с сообщением
  parse_status_packet(rx_message_);
 
-// для вывода пакета в лог
- std::string pretty_cmd = format_hex_pretty(rx_message_);                   
- ESP_LOGI(TAG,  "Ответ Nice: %S ", pretty_cmd.c_str() );
+
  
  // возвращаем false чтобы обнулить rx buffer
  return false;
