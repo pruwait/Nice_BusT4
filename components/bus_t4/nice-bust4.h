@@ -374,7 +374,7 @@ class NiceBusT4 : public Component, public Cover {
     */
 	
 	
-    std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
+    std::vector<uint8_t> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
     	
 	
     void send_array_cmd (std::vector<char> data);
