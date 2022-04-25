@@ -102,16 +102,16 @@ void NiceBusT4::setup() {
 	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x09, 0x99));
   
   //запрос железа
-  //this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
+  this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
 
 	//Состояние ворот (Открыто/Закрыто/Остановлено)
-  //this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
   
 	//запрос позиции открытия
-  //this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
 	
 	// запрос позиции закрытия
- // this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
+  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
   //запрос описания
 //v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0c.99.00.00.95.0d");
 //send_array_cmd (&v_cmd[0], v_cmd.size());
@@ -124,7 +124,7 @@ void NiceBusT4::loop() {
   
   if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
      
-    if (this->last_init_command_ < 46 ) { // команды при старте
+//    if (this->last_init_command_ < 46 ) { // команды при старте
    // if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
    // if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
   //  if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
@@ -141,8 +141,8 @@ void NiceBusT4::loop() {
  //   }
 // gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len)      	    
          
-     this->last_init_command_++;         
-     }   // if команды при старте
+ //    this->last_init_command_++;         
+  //   }   // if команды при старте
      
      
      
