@@ -607,13 +607,13 @@ void NiceBusT4::send_raw_cmd(std::string data) {
 
 
 //  Сюда нужно добавить проверку на неправильные данные от пользователя
-std::vector<char> NiceBusT4::raw_cmd_prepare (std::string data) { // подготовка введенных пользователем данных для возможности отправки
+std::vector<uint8_t> NiceBusT4::raw_cmd_prepare (std::string data) { // подготовка введенных пользователем данных для возможности отправки
 
 //  data.erase(remove_if(data.begin(), data.end(), ::isspace), data.end()); //удаляем пробелы
   data.erase(remove_if(data.begin(), data.end(), [](const unsigned char ch){return (!(iswalnum(ch)) );}), data.end()); //удаляем всё кроме букв и цифр
 
   //assert (data.size () % 2 == 0); // проверяем чётность
-  std::vector < char > frame;
+  std::vector < uint8_t > frame;
   frame.resize(0); // обнуляем размер команды
 
   for (uint8_t i = 0; i < data.size (); i += 2 ) { // заполняем массив команды
