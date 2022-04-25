@@ -221,7 +221,7 @@ rx_message_.erase(rx_message_.begin());
 // здесь что-то делаем с сообщением
  parse_status_packet(rx_message_);
 
-// для вывода команды в лог
+// для вывода пакета в лог
  std::string pretty_cmd = format_hex_pretty(rx_message_);                   
  ESP_LOGI(TAG,  "Ответ Nice: %S ", pretty_cmd.c_str() );
  
@@ -233,7 +233,20 @@ rx_message_.erase(rx_message_.begin());
 
 // разбираем полученные пакеты
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
-
+	
+  if (data[1] == (data[12]+0xd)) { 
+  //ESP_LOGD(TAG, "Получен пакет с данными. Размер данных %d ", data[12]);
+  std::vector<uint8_t> vec_data(this->rx_message_.begin()+14,this->rx_message_.end()-2);	  
+  std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
+  ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
+  std::string pretty_data = format_hex_pretty(vec_data);                   
+  ESP_LOGI(TAG,  "Данные HEX %x ", pretty_data.c_str() );
+  
+  
+  }
+	
+	
+///////////////////////////////////////////////////////////////////////////////////
 // для пакета с информацией об оборудовании
   if ((data[1] == 0x0E) && (data[6] == INF) && (data[9] == SETUP) && (data[10] == TYPE_M) && (data[11] == 0x19)) {  // узнаём пакет статуса по содержимому в определённых байтах
   //ESP_LOGD(TAG, "Тип привода: %#X ", data[14]);
@@ -485,7 +498,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
 
-	
+////////////////////////////////////////////////////////////////////////////////////////
 } // function
 
 
@@ -590,8 +603,8 @@ std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t
   frame.insert(frame.begin(), START_CODE);
 	
   // для вывода команды в лог
-  std::string pretty_cmd = format_hex_pretty(frame);                   
-  ESP_LOGI(TAG,  "Сформирован INF пакет: %S ", pretty_cmd.c_str() );	
+//  std::string pretty_cmd = format_hex_pretty(frame);                   
+//  ESP_LOGI(TAG,  "Сформирован INF пакет: %S ", pretty_cmd.c_str() );	
 	
   return frame;	
 	
