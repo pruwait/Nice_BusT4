@@ -379,7 +379,7 @@ class NiceBusT4 : public Component, public Cover {
 	
     void send_array_cmd (std::vector<char> data);
     void send_array_cmd (std::vector<uint8_t> data);	
-    void send_array_cmd (const char *data, size_t len);
+    void send_array_cmd (const uint8_t *data, size_t len);
     //uint8_t *raw_cmd = nullptr;                                     // указатель на данные для отправки
 	
     void parse_status_packet (const std::vector<uint8_t> &data); // разбираем пакет статуса
