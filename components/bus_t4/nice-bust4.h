@@ -375,15 +375,7 @@ class NiceBusT4 : public Component, public Cover {
 	
 	
     std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
-    std::string format_hex_pretty_(std::vector<char> data);          // для более красивого вывода hex строк
-    std::string format_hex_pretty_(const char *data, size_t length);  // для более красивого вывода hex строк из char 
-    std::string format_hex_pretty_uint8_t(const uint8_t *data, size_t length);  // для более красивого вывода hex строк из uint8_t
-    std::string format_hex_pretty_uint8_t(std::vector<uint8_t> data) { return format_hex_pretty_uint8_t(data.data(), data.size()); }
-    char format_hex_pretty_char_uint8_t(uint8_t v);
-    char format_hex_pretty_char_(char v) ;                           // для более красивого вывода hex строк
-	
-	
-	
+    	
 	
     void send_array_cmd (std::vector<char> data);
     void send_array_cmd (std::vector<uint8_t> data);	
