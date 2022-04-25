@@ -15,22 +15,7 @@ static const char *TAG = "bus_t4.cover";
 using namespace esphome::cover;
 
 
-/*
-  uint16_t crc16(const uint8_t *data, uint8_t len) {
-  uint16_t crc = 0xFFFF;
-  while (len--) {
-    crc ^= *data++;
-    for (uint8_t i = 0; i < 8; i++) {
-      if ((crc & 0x01) != 0) {
-        crc >>= 1;
-        crc ^= 0xA001;
-      } else {
-        crc >>= 1;
-      }
-    }
-  }
-  return crc;
-  } */ 
+
 
 CoverTraits NiceBusT4::get_traits() {
   auto traits = CoverTraits();
@@ -58,13 +43,12 @@ PARENTAL OPEN 2   55 0c 00 ff 00 66 01 05 9D 01 82 06 64 E1 0c
 void NiceBusT4::control(const CoverCall &call) {  
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
-	send_raw_cmd("55.0C.00.FF.00.66.01.05.9D.01.82.02.64.E5.0C");   // пока здесь дамп stop
-	send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
-//	send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.11.99.00.00.8C.0d");   // запрос условного текущего положения привода
+	this->tx_buffer_.push(gen_control_cmd(STOP));
+//	    send_raw_cmd("55.0C.00.FF.00.66.01.05.9D.01.82.02.64.E5.0C");   // пока здесь дамп stop
+	this->tx_buffer_.push(gen_inf_cmd(SETUP, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
+	this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));    // запрос условного текущего положения привода
 	    
-//	  std::string data = "55 0c 00 03 00 66 01 05 61 01 82 02 64 E5 0c"; // пока здесь дамп stop
-//	  std::vector < char > v_cmd = raw_cmd_prepare (data);
-//      this->send_array_cmd (&v_cmd[0], v_cmd.size());
+
       
     } else if (call.get_position().has_value()) {
       auto pos = *call.get_position();
@@ -113,10 +97,9 @@ void NiceBusT4::setup() {
 	// запрос позиции закрытия
   this->tx_buffer_.push(gen_inf_cmd(SETUP, POS_MIN, GET));		
   //запрос описания
-//v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0c.99.00.00.95.0d");
-//send_array_cmd (&v_cmd[0], v_cmd.size());
-  
-  
+  this->tx_buffer_.push(gen_inf_cmd(ROOT, DSC, GET));
+// запрос максимального значения для энкодера
+  this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));	  
 
 }
 
@@ -535,17 +518,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
 
-void NiceBusT4::send_command_(const uint8_t *data, uint8_t len) {                      // генерирует команду для отправки
-  /*std::vector<uint8_t> frame = {START_CODE, *this->header_[1], *this->header_[2]};
-    for (size_t i = 0; i < len; i++) {
-    frame.push_back(data[i]);
-    }
-    uint16_t crc = crc16(&frame[0], frame.size());
-    frame.push_back(crc >> 0);
-    frame.push_back(crc >> 8);
 
-    this->send(frame);*/
-}
 
 void NiceBusT4::dump_config() {    //  добавляем в  лог информацию о подключенном контроллере
   ESP_LOGCONFIG(TAG, "  Bus T4 Cover");
