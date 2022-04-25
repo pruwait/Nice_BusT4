@@ -90,28 +90,28 @@ void NiceBusT4::setup() {
   delay (500);
    this->last_init_command_ = 0;
  // запрос типа привода 
-	this->tx_buffer_.push(gen_inf_cmd(0x04, 0x00, 0x99));
+	this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
   
   // запрос производителя
-	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x08, 0x99));
+	this->tx_buffer_.push(gen_inf_cmd(ROOT, MAN, GET));
   
     // запрос прошивки
-	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0b, 0x99));
+	this->tx_buffer_.push(gen_inf_cmd(ROOT, FRM, GET));
   
   //запрос продукта
-	this->tx_buffer_.push(gen_inf_cmd(0x00, 0x09, 0x99));
+	this->tx_buffer_.push(gen_inf_cmd(ROOT, PRD, GET));
   
   //запрос железа
-  this->tx_buffer_.push(gen_inf_cmd(0x00, 0x0a, 0x99));
+  this->tx_buffer_.push(gen_inf_cmd(ROOT, HWR, GET));
 
 	//Состояние ворот (Открыто/Закрыто/Остановлено)
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x01, 0x99));  
+  this->tx_buffer_.push(gen_inf_cmd(SETUP, INF_STATUS, GET));  
   
 	//запрос позиции открытия
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x18, 0x99));	
+  this->tx_buffer_.push(gen_inf_cmd(SETUP, POS_MAX, GET));	
 	
 	// запрос позиции закрытия
-  this->tx_buffer_.push(gen_inf_cmd(0x04, 0x19, 0x99));		
+  this->tx_buffer_.push(gen_inf_cmd(SETUP, POS_MIN, GET));		
   //запрос описания
 //v_cmd = raw_cmd_prepare ("55.0d.FF.FF.00.66.08.06.68.00.0c.99.00.00.95.0d");
 //send_array_cmd (&v_cmd[0], v_cmd.size());
@@ -196,7 +196,7 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
     return new_byte == 0x00;
   // Byte 1: HEADER2 (всегда 0x55)
   if (at == 1)
-    return new_byte == 0x55;
+    return new_byte == START_CODE;
 
   // Byte 2: packet_size - количество байт дальше + 1
   // Проверка не проводится
@@ -571,7 +571,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   } // switch
   
   
-  ESP_LOGCONFIG(TAG, "  Максимальное положение энкодера: %d", this->_max_opn);
+  ESP_LOGCONFIG(TAG, "  Максимальное положение энкодера или таймера: %d", this->_max_opn);
   ESP_LOGCONFIG(TAG, "  Положение отрытых ворот: %d", this->_pos_opn);
   ESP_LOGCONFIG(TAG, "  Положение закрытых ворот: %d", this->_pos_cls);
   
@@ -610,7 +610,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   uint8_t f_size = frame.size();
   frame.push_back(f_size);
   frame.insert(frame.begin(), f_size);
-  frame.insert(frame.begin(), 0x55);
+  frame.insert(frame.begin(), START_CODE);
 	
 // для вывода команды в лог
 //  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
@@ -640,7 +640,7 @@ std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t
   uint8_t f_size = frame.size();
   frame.push_back(f_size);
   frame.insert(frame.begin(), f_size);
-  frame.insert(frame.begin(), 0x55);
+  frame.insert(frame.begin(), START_CODE);
 	
   // для вывода команды в лог
   std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
