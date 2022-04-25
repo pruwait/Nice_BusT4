@@ -574,9 +574,9 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   frame.push_back(0x05); 
   uint8_t crc1 = (frame[0]^frame[1]^frame[2]^frame[3]^frame[4]^frame[5]);
   frame.push_back(crc1);
-  frame.push_back(0x04);
+  frame.push_back(0x01);
+  frame.push_back(0x82);
   frame.push_back(control_cmd);
-  frame.push_back(0x99);
   frame.push_back(0x00);	
   uint8_t crc2 = (frame[7]^frame[8]^frame[9]^frame[10]);	
   frame.push_back(crc2);	
