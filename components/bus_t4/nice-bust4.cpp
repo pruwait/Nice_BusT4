@@ -254,6 +254,31 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	    switch (data[10]+0x80) { // sub_inf_cmd
 	        case RUN:
 	            ESP_LOGI(TAG,  "Подменю RUN" );
+		    switch (data[11]-0x80) { // sub_run_cmd
+	                case SBS: 
+			    ESP_LOGI(TAG,  "Команда: Пошагово" );	    
+		            break;
+	                case STOP: 
+			    ESP_LOGI(TAG,  "Команда: STOP" );	    
+		            break;				   
+ 	                case OPEN: 
+			    ESP_LOGI(TAG,  "Команда: OPEN" );	    
+		            break;				   
+ 	                case CLOSE: 
+			    ESP_LOGI(TAG,  "Команда: CLOSE" );	    
+		            break;				   
+ 	                case P_OPN1: 
+			    ESP_LOGI(TAG,  "Команда: Частичное открывание" );	    
+		            break;				   
+                        default:		
+	                    ESP_LOGI(TAG,  "Команда: %X", data[11] );	
+  
+
+				    
+				    
+				    
+				    
+		    } // switch RUN
 	            break;
 	        default:		
 	            ESP_LOGI(TAG,  "Подменю %X", data[10] );	
