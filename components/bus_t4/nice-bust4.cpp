@@ -44,7 +44,6 @@ void NiceBusT4::control(const CoverCall &call) {
     if (call.get_stop()) {
      // uint8_t data[2] = {CONTROL, STOP};
 	this->tx_buffer_.push(gen_control_cmd(STOP));
-//	    send_raw_cmd("55.0C.00.FF.00.66.01.05.9D.01.82.02.64.E5.0C");   // пока здесь дамп stop
 	this->tx_buffer_.push(gen_inf_cmd(SETUP, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
 	this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));    // запрос условного текущего положения привода
 	    
@@ -54,13 +53,15 @@ void NiceBusT4::control(const CoverCall &call) {
       auto pos = *call.get_position();
       if (pos != this->position) {
         if (pos == COVER_OPEN) {
-          std::string data = "55 0c 00 ff 00 66 01 05 9D 01 82 03 00 80 0c"; // пока здесь дамп open
-	      std::vector < char > v_cmd = raw_cmd_prepare (data);
-          this->send_array_cmd (&v_cmd[0], v_cmd.size());
+	    this->tx_buffer_.push(gen_control_cmd(OPEN));
+//          std::string data = "55 0c 00 ff 00 66 01 05 9D 01 82 03 00 80 0c"; // пока здесь дамп open
+//	      std::vector < char > v_cmd = raw_cmd_prepare (data);
+//          this->send_array_cmd (&v_cmd[0], v_cmd.size());
         } else if (pos == COVER_CLOSED) {
-          std::string data = "55 0c 00 03 00 66 01 05 61 01 82 04 64 E3 0c"; // пока здесь дамп close
-	      std::vector < char > v_cmd = raw_cmd_prepare (data);
-          this->send_array_cmd (&v_cmd[0], v_cmd.size());
+	    this->tx_buffer_.push(gen_control_cmd(CLOSE));
+//          std::string data = "55 0c 00 03 00 66 01 05 61 01 82 04 64 E3 0c"; // пока здесь дамп close
+//	      std::vector < char > v_cmd = raw_cmd_prepare (data);
+//          this->send_array_cmd (&v_cmd[0], v_cmd.size());
         } /*else {
           uint8_t data[3] = {CONTROL, SET_POSITION, (uint8_t)(pos * 100)};
           this->send_command_(data, 3);
