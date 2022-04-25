@@ -87,7 +87,7 @@ void NiceBusT4::control(const CoverCall &call) {
 
 void NiceBusT4::setup() {
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
-  delay (1000);
+  delay (500);
    this->last_init_command_ = 0;
  // запрос типа привода 
 	this->tx_buffer_.push(gen_inf_cmd(0x04, 0x00, 0x99));
