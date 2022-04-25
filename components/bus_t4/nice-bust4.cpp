@@ -235,13 +235,16 @@ rx_message_.erase(rx_message_.begin());
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	
   if (data[1] == (data[12]+0xd)) { 
-  //ESP_LOGD(TAG, "Получен пакет с данными. Размер данных %d ", data[12]);
+  //ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
   std::vector<uint8_t> vec_data(this->rx_message_.begin()+14,this->rx_message_.end()-2);	  
   std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
   ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
   std::string pretty_data = format_hex_pretty(vec_data);                   
   ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
   
+  
+  }
+  else {  // иначе пакет Responce - подтверждение полученной команды
   
   }
 	
@@ -396,9 +399,9 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   if (data[1] == (data[12]+0xd)) { 
 //    std::vector<char> data_mes (this->rx_message_.begin()+14,this->rx_message_.end()-2);
 //    std::string str(data_mes.begin(), data_mes.end());
-      std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
+ //     std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
       
-    ESP_LOGI(TAG,  "Пакет с данными: %S ", str.c_str() );
+//    ESP_LOGI(TAG,  "Пакет с данными: %S ", str.c_str() );
       
       
     if ((data[9] == 0x00) && (data[11] == 0x19)){ //if2
