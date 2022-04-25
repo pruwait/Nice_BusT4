@@ -704,7 +704,7 @@ void NiceBusT4::send_array_cmd (const char *data, size_t len) {
 
   
   //std::string pretty_cmd = "00." + format_hex_pretty_(&data[0], len);                    // для вывода команды в лог
-  std::string pretty_cmd = format_hex_pretty(&data[0], len);                    // для вывода команды в лог
+  std::string pretty_cmd = format_hex_pretty((uint8_t*)&data[0], len);                    // для вывода команды в лог
   ESP_LOGI(TAG,  "Отправлено: %S ", pretty_cmd.c_str() );
 
 }
