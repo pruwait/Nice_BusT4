@@ -366,21 +366,16 @@ class NiceBusT4 : public Component, public Cover {
     // настройки заголовка формируемого пакета
     uint16_t from_addr = 0x0066; //от кого пакет, адрес bust4 шлюза
     uint16_t to_addr = 0x00ff;	 // кому пакет, адрес контроллера привода, которым управляем
-   /* 
-    std::vector<char> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
-	std::string format_hex_pretty(std::vector<char> data);          // для более красивого вывода hex строк
-	std::string format_hex_pretty(const char *data, size_t length);  // для более красивого вывода hex строк
-	char format_hex_pretty_char(char v) ;                           // для более красивого вывода hex строк
-    */
+
 	
 	
     std::vector<uint8_t> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
     	
 	
-    void send_array_cmd (std::vector<char> data);
+   // void send_array_cmd (std::vector<char> data);
     void send_array_cmd (std::vector<uint8_t> data);	
     void send_array_cmd (const uint8_t *data, size_t len);
-    //uint8_t *raw_cmd = nullptr;                                     // указатель на данные для отправки
+
 	
     void parse_status_packet (const std::vector<uint8_t> &data); // разбираем пакет статуса
     
