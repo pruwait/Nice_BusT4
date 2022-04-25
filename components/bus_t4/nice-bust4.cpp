@@ -249,6 +249,14 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         switch (data[9]) { // cmd_mnu
 	  case SETUP:
 	    ESP_LOGI(TAG,  "Меню SETUP" );
+	    switch (data[10]+0x80) { // sub_inf_cmd
+	        case RUN:
+	            ESP_LOGI(TAG,  "Подменю RUN" );
+	            break;
+	        default:		
+	            ESP_LOGI(TAG,  "Подменю %X", data[10] );	
+	    }  // switch SETUP		
+			
             break;
 	  case CONTROL:
 	    ESP_LOGI(TAG,  "Меню CONTROL" );
@@ -580,8 +588,8 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   frame.push_back(0x05); 
   uint8_t crc1 = (frame[0]^frame[1]^frame[2]^frame[3]^frame[4]^frame[5]);
   frame.push_back(crc1);
-  frame.push_back(0x01);
-  frame.push_back(0x82);
+  frame.push_back(CONTROL);
+  frame.push_back(RUN);
   frame.push_back(control_cmd);
   frame.push_back(0x00);	
   uint8_t crc2 = (frame[7]^frame[8]^frame[9]^frame[10]);	
