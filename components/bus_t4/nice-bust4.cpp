@@ -240,7 +240,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
   ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
   std::string pretty_data = format_hex_pretty(vec_data);                   
-  ESP_LOGI(TAG,  "Данные HEX %x ", pretty_data.c_str() );
+  ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
   
   
   }
