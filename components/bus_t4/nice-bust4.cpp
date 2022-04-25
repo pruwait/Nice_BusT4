@@ -253,7 +253,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 	  case CONTROL:
 	    ESP_LOGI(TAG,  "Меню CONTROL" );
             break;
-	  case CONTROL:
+	  case ROOT:
 	    ESP_LOGI(TAG,  "Меню ROOT" );
             break;			
 			
