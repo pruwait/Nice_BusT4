@@ -54,14 +54,10 @@ void NiceBusT4::control(const CoverCall &call) {
       if (pos != this->position) {
         if (pos == COVER_OPEN) {
 	    this->tx_buffer_.push(gen_control_cmd(OPEN));
-//          std::string data = "55 0c 00 ff 00 66 01 05 9D 01 82 03 00 80 0c"; // пока здесь дамп open
-//	      std::vector < char > v_cmd = raw_cmd_prepare (data);
-//          this->send_array_cmd (&v_cmd[0], v_cmd.size());
+
         } else if (pos == COVER_CLOSED) {
 	    this->tx_buffer_.push(gen_control_cmd(CLOSE));
-//          std::string data = "55 0c 00 03 00 66 01 05 61 01 82 04 64 E3 0c"; // пока здесь дамп close
-//	      std::vector < char > v_cmd = raw_cmd_prepare (data);
-//          this->send_array_cmd (&v_cmd[0], v_cmd.size());
+
         } /*else {
           uint8_t data[3] = {CONTROL, SET_POSITION, (uint8_t)(pos * 100)};
           this->send_command_(data, 3);
@@ -106,34 +102,11 @@ void NiceBusT4::setup() {
 
 void NiceBusT4::loop() {
   
-  if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
+//  if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
      
-//    if (this->last_init_command_ < 46 ) { // команды при старте
-   // if (last_init_command_ == 2  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.00.99.00.00.9D.0d");  // запрос типа привода 
-   // if (last_init_command_ == 8  )  send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.01.99.00.00.9C.0d");  //Состояние ворот (Открыто/Закрыто/Остановлено)
-  //  if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.12.99.00.00.8F.0d");  // запрос максимального значения для энкодера
-//      if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.d1.99.00.00.4C.0d");  // запрос концевиков откатных ворот
-  //  if (last_init_command_ == 14  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.18.99.00.00.85.0d");  //запрос позиции открытия
-  //  if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.04.19.99.00.00.84.0d");  // запрос позиции закрытия
-//      if (last_init_command_ == 26  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0b.99.00.00.92.0d");  // запрос прошивки
-//      if (last_init_command_ == 32  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.09.99.00.00.90.0d");  //запрос продукта
-//      if (last_init_command_ == 40  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.08.99.00.00.91.0d");  // запрос производителя
- //     if (last_init_command_ == 48  ) send_raw_cmd("55.0d.FF.FF.00.66.08.06.68.00.0a.99.00.00.93.0d");  //запрос железа
-//    if (last_init_command_ == 45  ) { 
-//	    std::vector<uint8_t> get_cmd = gen_control_cmd(0x01);  // для отладки
-//	    std::vector<uint8_t> inf_cmd = gen_inf_cmd(0x04, 0x08, 0x89); gen_inf_cmd(0x04, 0x00, 0x99);
- //   }
-// gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len)      	    
-         
- //    this->last_init_command_++;         
-  //   }   // if команды при старте
-     
-     
-     
-  //   uint8_t data[3] = {READ, this->current_request_, 0x01};
-//      this->send_command_(data, 3);
-      this->last_update_ = millis(); 
-  }  // if  каждые 500ms
+
+//      this->last_update_ = millis(); 
+//  }  // if  каждые 500ms
 	
 	
 // разрешаем отправку каждые 50 ms	
@@ -627,7 +600,7 @@ std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t
 	
 void NiceBusT4::send_raw_cmd(std::string data) {
 
-  std::vector < char > v_cmd = raw_cmd_prepare (data);
+  std::vector < uint8_t > v_cmd = raw_cmd_prepare (data);
   send_array_cmd (&v_cmd[0], v_cmd.size());
 
 }
@@ -655,9 +628,9 @@ std::vector<char> NiceBusT4::raw_cmd_prepare (std::string data) { // подго�
 }
 
 
-void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отправляет break + подготовленную ранее в массиве команду
-  return send_array_cmd(data.data(), data.size());
-}
+//void NiceBusT4::send_array_cmd (std::vector<char> data) {          // отправляет break + подготовленную ранее в массиве команду
+//  return send_array_cmd(data.data(), data.size());
+//}
 void NiceBusT4::send_array_cmd (std::vector<uint8_t> data) {          // отправляет break + подготовленную ранее в массиве команду
   return send_array_cmd((const char *)data.data(), data.size());
 }	
