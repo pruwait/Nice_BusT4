@@ -265,7 +265,7 @@ rx_message_.erase(rx_message_.begin());
  parse_status_packet(rx_message_);
 
 // для вывода команды в лог
- std::string pretty_cmd = format_hex_pretty_uint8_t(rx_message_);                   
+ std::string pretty_cmd = format_hex_pretty(rx_message_);                   
  ESP_LOGI(TAG,  "Ответ Nice: %S ", pretty_cmd.c_str() );
  
  // возвращаем false чтобы обнулить rx buffer
@@ -613,7 +613,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   frame.insert(frame.begin(), START_CODE);
 	
 // для вывода команды в лог
-//  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
+//  std::string pretty_cmd = format_hex_pretty(frame);                   
 //  ESP_LOGI(TAG,  "Сформирована команда: %S ", pretty_cmd.c_str() );	
 	
   return frame;
@@ -643,7 +643,7 @@ std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t
   frame.insert(frame.begin(), START_CODE);
 	
   // для вывода команды в лог
-  std::string pretty_cmd = format_hex_pretty_uint8_t(frame);                   
+  std::string pretty_cmd = format_hex_pretty(frame);                   
   ESP_LOGI(TAG,  "Сформирован INF пакет: %S ", pretty_cmd.c_str() );	
 	
   return frame;	
@@ -703,48 +703,14 @@ void NiceBusT4::send_array_cmd (const char *data, size_t len) {
   uart_wait_tx_empty(_uart);                                       // ждем завершения отправки
 
   
-  //std::string pretty_cmd = "00." + format_hex_pretty_(&data[0], len);                    // для вывода команды в лог
+ 
   std::string pretty_cmd = format_hex_pretty((uint8_t*)&data[0], len);                    // для вывода команды в лог
   ESP_LOGI(TAG,  "Отправлено: %S ", pretty_cmd.c_str() );
 
 }
 
 
-// работа со строками, взято из dev esphome/core/helpers.h, изменен тип на char
-  char NiceBusT4::format_hex_pretty_char_(char v) { return v >= 10 ? 'A' + (v - 10) : '0' + v; }
-  std::string NiceBusT4::format_hex_pretty_(const char *data, size_t length) {
-  if (length == 0)
-    return "";
-  std::string ret;
-  ret.resize(3 * length - 1);
-  for (size_t i = 0; i < length; i++) {
-    ret[3 * i] = format_hex_pretty_char_((data[i] & 0xF0) >> 4);
-    ret[3 * i + 1] = format_hex_pretty_char_(data[i] & 0x0F);
-    if (i != length - 1)
-      ret[3 * i + 2] = '.';
-  }
-  if (length > 4)
-    return ret + " (" + to_string(length) + ")";
-  return ret;
-  }
-  std::string NiceBusT4::format_hex_pretty_(std::vector<char> data) { return format_hex_pretty_(data.data(), data.size()); }
 
-char NiceBusT4::format_hex_pretty_char_uint8_t(uint8_t v) { return v >= 10 ? 'A' + (v - 10) : '0' + v; }
-std::string NiceBusT4::format_hex_pretty_uint8_t(const uint8_t *data, size_t length) {
-  if (length == 0)
-    return "";
-  std::string ret;
-  ret.resize(3 * length - 1);
-  for (size_t i = 0; i < length; i++) {
-    ret[3 * i] = format_hex_pretty_char_uint8_t((data[i] & 0xF0) >> 4);
-    ret[3 * i + 1] = format_hex_pretty_char_uint8_t(data[i] & 0x0F);
-    if (i != length - 1)
-      ret[3 * i + 2] = '.';
-  }
-  if (length > 4)
-    return ret + " (" + to_string(length) + ")";
-  return ret;
-}
 
 
 
