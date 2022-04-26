@@ -241,7 +241,7 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
 // разбираем полученные пакеты
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
-  if (data[1] == (data[12] + 0xd)) {
+  if (data[1] == (data[12] + 0xd)) { // if evt
     ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
@@ -249,14 +249,65 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     std::string pretty_data = format_hex_pretty(vec_data);
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
 // получили пакет с данными EVT, начинаем разбирать
-    switch (data[9]) { // cmd_mnu
-      case SETUP:
-        ESP_LOGI(TAG,  "Меню SETUP" );
-        break; //  SETUP
-        
+    if ((data[6] == INF) && (data[9] == SETUP)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок
+        ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
+        switch (data[10]) { // cmd_submnu
+          case TYPE_M:
+ //           ESP_LOGI(TAG,  "Тип привода %X",  data[14]);
+              switch (data[14]) { //14
+                   case SLIDING:
+                       this->class_gate_ = SLIDING;
+             //        ESP_LOGD(TAG, "Тип ворот: Откатные %#X ", data[14]);
+                       break;
+                   case SECTIONAL:
+                       this->class_gate_ = SECTIONAL;
+             //        ESP_LOGD(TAG, "Тип ворот: Секционные %#X ", data[14]);
+                       break;
+                   case SWING:
+                       this->class_gate_ = SWING;
+             //        ESP_LOGD(TAG, "Тип ворот: Распашные %#X ", data[14]);
+                       break;
+                   case BARRIER:
+                       this->class_gate_ = BARRIER;
+             //        ESP_LOGD(TAG, "Тип ворот: Шлагбаум %#X ", data[14]);
+                       break;
+                   case UPANDOVER:
+                       this->class_gate_ = UPANDOVER;
+             //        ESP_LOGD(TAG, "Тип ворот: Подъемно-поворотные %#X ", data[14]);
+                       break;
+              }  // switch 14
+              break; //  TYPE_M
+          case INF_IO: // ответ на запрос положения концевика откатных ворот
+                  switch (data[16]) { //16
+                      case 0x00:
+                          ESP_LOGI(TAG, "  Концевик не сработал ");
+                          break; // 0x00
+                      case 0x01:
+                          ESP_LOGI(TAG, "  Концевик на закрытие ");
+                          this->position = COVER_CLOSED;
+                          break; //  0x01
+                      case 0x02:
+                          ESP_LOGI(TAG, "  Концевик на открытие ");
+                          this->position = COVER_OPEN;
+                          break; // 0x02
+
+                  }  // switch 16
+                  this->publish_state();  // публикуем состояние
+            
+            break; //  INF_IO           
+     
+            
+            
+            
+                
+ 
+            
+            
+            
 //      default: // cmd_mnu 
-     } // switch cmd_mnu 
-  } // if
+         } // switch cmd_submnu 
+      } // if ответы на запросы GET, пришедшие без ошибок
+  } //  if evt
   else  {  // иначе пакет Responce - подтверждение полученной команды
     ESP_LOGD(TAG, "Получен пакет RSP");
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
@@ -343,33 +394,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
   ///////////////////////////////////////////////////////////////////////////////////
-  // для пакета с информацией об оборудовании
-  if ((data[1] == 0x0E) && (data[6] == INF) && (data[9] == SETUP) && (data[10] == TYPE_M) && (data[11] == 0x19)) {  // узнаём пакет статуса по содержимому в определённых байтах
-    //ESP_LOGD(TAG, "Тип привода: %#X ", data[14]);
-    switch (data[14]) {
-      case SLIDING:
-        this->class_gate_ = SLIDING;
-        //        ESP_LOGD(TAG, "Тип ворот: Откатные %#X ", data[14]);
-        break;
-      case SECTIONAL:
-        this->class_gate_ = SECTIONAL;
-        //        ESP_LOGD(TAG, "Тип ворот: Секционные %#X ", data[14]);
-        break;
-      case SWING:
-        this->class_gate_ = SWING;
-        //        ESP_LOGD(TAG, "Тип ворот: Распашные %#X ", data[14]);
-        break;
-      case BARRIER:
-        this->class_gate_ = BARRIER;
-        //        ESP_LOGD(TAG, "Тип ворот: Шлагбаум %#X ", data[14]);
-        break;
-      case UPANDOVER:
-        this->class_gate_ = UPANDOVER;
-        //        ESP_LOGD(TAG, "Тип ворот: Подъемно-поворотные %#X ", data[14]);
-        break;
-    }  // switch
-    
-  } //if
+
 
   // RSP ответ (ReSPonce) на простой прием команды CMD, а не ее выполнение. Также докладывает о завершении операции.
   if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == CUR_MAN) && (data[12] == 0x19)) { // узнаём пакет статуса по содержимому в определённых байтах
