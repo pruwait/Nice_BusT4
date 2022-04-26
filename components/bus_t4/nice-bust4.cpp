@@ -300,14 +300,25 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
             switch (data[11]) { // sub_run_cmd2
               case STA_OPENING:
                 ESP_LOGI(TAG,  "Движение: Открывается" );
+                this->current_operation = COVER_OPERATION_OPENING;
                 break; // STA_OPENING
               case STA_CLOSING:
                 ESP_LOGI(TAG,  "Движение: Закрывается" );
+                this->current_operation = COVER_OPERATION_CLOSING;
                 break; // STA_CLOSING
               default: // sub_run_cmd2
                 ESP_LOGI(TAG,  "Движение: %X", data[11] );          
           
             } // switch sub_run_cmd2      
+//                uint16_t ipos = (data[12] << 8) + data[13];
+//                ESP_LOGD(TAG, "Условная позиция:  = %#x", ipos);
+//                this->position = ipos / 2100.0f; // передаем позицию компоненту
+                
+                this->_pos_usl = (data[12] << 8) + data[13];
+                this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
+                ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls));
+                this->publish_state();  // публикуем состояние
+            
             break; //STA
 
 
