@@ -67,7 +67,7 @@ void NiceBusT4::control(const CoverCall &call) {
 }
 
 void NiceBusT4::setup() {
-  delay (15000);   // пока привод не стартанёт, на команды отвечать не будет	
+  delay (5000);   // пока привод не стартанёт, на команды отвечать не будет	
 	
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
   
