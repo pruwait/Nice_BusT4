@@ -257,7 +257,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 //      default: // cmd_mnu 
      } // switch cmd_mnu 
   } // if
-  else {  // иначе пакет Responce - подтверждение полученной команды
+  else  {  // иначе пакет Responce - подтверждение полученной команды
     ESP_LOGD(TAG, "Получен пакет RSP");
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
     std::string str(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
@@ -310,13 +310,10 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 ESP_LOGI(TAG,  "Движение: %X", data[11] );          
           
             } // switch sub_run_cmd2      
-//                uint16_t ipos = (data[12] << 8) + data[13];
-//                ESP_LOGD(TAG, "Условная позиция:  = %#x", ipos);
-//                this->position = ipos / 2100.0f; // передаем позицию компоненту
                 
                 this->_pos_usl = (data[12] << 8) + data[13];
                 this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
-                ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls));
+                ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
                 this->publish_state();  // публикуем состояние
             
             break; //STA
@@ -438,6 +435,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   } //if
 
   // STA = 0x40,   // статус в движении
+/*
   if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == STA) ) { // узнаём пакет статуса по содержимому в определённых байтах
     uint16_t ipos = (data[12] << 8) + data[13];
     ESP_LOGD(TAG, "Текущий маневр: %#X Позиция: %#X %#X, ipos = %#x,", data[11], data[12], data[13], ipos);
@@ -486,7 +484,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     this->publish_state();  // публикуем состояние
 
   } //if
-
+*/
 
 
 
