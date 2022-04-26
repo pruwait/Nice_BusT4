@@ -275,6 +275,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               default: // sub_run_cmd1
                 ESP_LOGI(TAG,  "Команда: %X", data[11] );
             } // switch sub_run_cmd1      
+            break; //RUN  
 
           case STA:
             ESP_LOGI(TAG,  "Подменю Статус в движении" );
