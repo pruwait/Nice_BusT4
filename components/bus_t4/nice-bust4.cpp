@@ -242,7 +242,7 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
   if (data[1] == (data[12] + 0xd)) {
-    //ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
+    ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
@@ -258,7 +258,12 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
      } // switch cmd_mnu 
   } // if
   else {  // иначе пакет Responce - подтверждение полученной команды
-
+    ESP_LOGD(TAG, "Получен пакет RSP");
+    std::vector<uint8_t> vec_data(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
+    std::string str(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
+    ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
+    std::string pretty_data = format_hex_pretty(vec_data);
+    ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     switch (data[9]) { // cmd_mnu
       case SETUP:
         ESP_LOGI(TAG,  "Меню SETUP" );
