@@ -193,7 +193,7 @@ enum Status : uint8_t {
   CLOSING2  = 0x03,	
   OPENED   = 0x04,
   CLOSED   = 0x05,
-  STOPPED   = 0x88,		
+  STOPPED   = 0x08,		
   UNKNOWN   = 0x00,
   UNLOCKED = 0x02,
   NO_LIM   = 0x06, /* no limits set */ 
