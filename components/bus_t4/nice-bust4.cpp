@@ -340,27 +340,38 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               break;
           }  // switch
           this->publish_state();  // публикуем состояние
-
           break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
           //      default: // cmd_mnu
       } // switch cmd_submnu
     } // if ответы на запросы GET, пришедшие без ошибок
+
+    if ((data[6] == INF) && (data[9] == ROOT)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ROOT ответы на запросы GET, пришедшие без ошибок
+
+      switch (data[10]) {
+        case MAN:
+          //       ESP_LOGCONFIG(TAG, "  Производитель: %S ", str.c_str());
+          this->manufacturer_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          break;
+        case PRD:
+          //          ESP_LOGCONFIG(TAG, "  Продукт: %S ", str.c_str());
+          this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          break;
+        case HWR:
+          //          ESP_LOGCONFIG(TAG, "  Железо: %S ", str.c_str());
+          this->hardware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          break;
+        case FRM:
+          //          ESP_LOGCONFIG(TAG, "  Прошивка: %S ", str.c_str());
+          this->firmware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          break;
+      }  // switch
+
+    }  // if интересуют ROOT ответы на запросы GET, пришедшие без ошибок
   } //  if evt
+  
+  
+  
   else  {  // иначе пакет Responce - подтверждение полученной команды
     ESP_LOGD(TAG, "Получен пакет RSP");
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
@@ -450,7 +461,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
   // RSP ответ (ReSPonce) на простой прием команды CMD, а не ее выполнение. Также докладывает о завершении операции.
-  if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == CUR_MAN) && (data[12] == 0x19)) { // узнаём пакет статуса по содержимому в определённых байтах
+ /* if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == CUR_MAN) && (data[12] == 0x19)) { // узнаём пакет статуса по содержимому в определённых байтах
     //  ESP_LOGD(TAG, "Получен пакет RSP. cmd = %#x", data[11]);
 
     switch (data[11]) {
@@ -484,8 +495,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     this->publish_state();  // публикуем состояние
 
   } //if
-
-
+*/
+/*
   // статус после достижения концевиков
   if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == CUR_MAN) &&  (data[12] == 0x00)) { // узнаём пакет статуса по содержимому в определённых байтах
     ESP_LOGD(TAG, "Получен пакет концевиков. Статус = %#x", data[11]);
@@ -511,7 +522,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     } //switch
     this->publish_state();  // публикуем состояние
   } //if
-
+*/
   // STA = 0x40,   // статус в движении
   /*
     if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == STA) ) { // узнаём пакет статуса по содержимому в определённых байтах
@@ -563,49 +574,6 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
     } //if
   */
-
-
-
-
-  // пакет с данными
-  if (data[1] == (data[12] + 0xd)) {
-    //    std::vector<char> data_mes (this->rx_message_.begin()+14,this->rx_message_.end()-2);
-    //    std::string str(data_mes.begin(), data_mes.end());
-    //     std::string str(this->rx_message_.begin()+14,this->rx_message_.end()-2);
-
-    //    ESP_LOGI(TAG,  "Пакет с данными: %S ", str.c_str() );
-
-
-    if ((data[9] == 0x00) && (data[11] == 0x19)) { //if2
-
-      switch (data[10]) {
-        case 0x08:
-          //       ESP_LOGCONFIG(TAG, "  Производитель: %S ", str.c_str());
-          this->manufacturer_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
-          break;
-        case 0x09:
-          //          ESP_LOGCONFIG(TAG, "  Продукт: %S ", str.c_str());
-          this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
-          break;
-        case 0x0a:
-          //          ESP_LOGCONFIG(TAG, "  Железо: %S ", str.c_str());
-          this->hardware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
-          break;
-        case 0x0b:
-          //          ESP_LOGCONFIG(TAG, "  Прошивка: %S ", str.c_str());
-          this->firmware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
-          break;
-      }  // switch
-    } //if2
-
-
-
-
-
-
-
-  } //if  пакет данных
-
 
 
   ////////////////////////////////////////////////////////////////////////////////////////
