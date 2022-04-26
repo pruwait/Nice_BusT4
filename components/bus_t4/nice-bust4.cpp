@@ -287,7 +287,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               default:
                 ESP_LOGI(TAG,  "Движение: %X", data[11] );			    
 			    
-			    
+	    } // switch sub_run_cmd2	    
             break;
 
 
