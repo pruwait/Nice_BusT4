@@ -99,6 +99,9 @@ void NiceBusT4::setup() {
   this->tx_buffer_.push(gen_inf_cmd(ROOT, DSC, GET));
   // запрос максимального значения для энкодера
   this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
+  // запрос текущей позиции для энкодера
+  this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
+  
 
 }
 
