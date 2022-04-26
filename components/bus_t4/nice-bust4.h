@@ -193,13 +193,21 @@ enum Status : uint8_t {
   CLOSING2  = 0x03,	
   OPENED   = 0x04,
   CLOSED   = 0x05,
-  STOPPED   = 0x88,
+  STOPPED   = 0x88,		
   UNKNOWN   = 0x00,
   UNLOCKED = 0x02,
   NO_LIM   = 0x06, /* no limits set */ 
   NO_INF   = 0x0F, /* no additional information */
 };
 
+
+
+/* используется в ответах STA*/
+enum sub_run_cmd2 : uint8_t {
+  STA_OPENING  = 0x02,	
+  STA_CLOSING  = 0x03,
+
+};	
 
 /* Ошибки */
 enum errors_byte  : uint8_t {
