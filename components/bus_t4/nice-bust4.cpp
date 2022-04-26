@@ -272,6 +272,10 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               case P_OPN1:
                 ESP_LOGI(TAG,  "Команда: Частичное открывание" );
                 break; // P_OPN1
+              case STOPPED:
+                this->current_operation = COVER_OPERATION_IDLE;
+                ESP_LOGI(TAG, "Команда: Остановлено");
+                break; // STOPPED
               default: // sub_run_cmd1
                 ESP_LOGI(TAG,  "Команда: %X", data[11] );
             } // switch sub_run_cmd1      
