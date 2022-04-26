@@ -257,56 +257,57 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           case RUN:
             ESP_LOGI(TAG,  "Подменю RUN" );
             switch (data[11] - 0x80) { // sub_run_cmd1
-              case SBS:
+              case SBS: 
                 ESP_LOGI(TAG,  "Команда: Пошагово" );
-                break;
+                break; // SBS
               case STOP:
                 ESP_LOGI(TAG,  "Команда: STOP" );
-                break;
+                break; // STOP
               case OPEN:
                 ESP_LOGI(TAG,  "Команда: OPEN" );
-                break;
+                break; // OPEN
               case CLOSE:
                 ESP_LOGI(TAG,  "Команда: CLOSE" );
-                break;
+                break;  // CLOSE
               case P_OPN1:
                 ESP_LOGI(TAG,  "Команда: Частичное открывание" );
-                break;
-              default:
+                break; // P_OPN1
+              default: // sub_run_cmd1
                 ESP_LOGI(TAG,  "Команда: %X", data[11] );
+            } // switch sub_run_cmd1      
 
           case STA:
             ESP_LOGI(TAG,  "Подменю Статус в движении" );
             switch (data[11]) { // sub_run_cmd2
               case STA_OPENING:
                 ESP_LOGI(TAG,  "Движение: Открывается" );
-                break;
+                break; // STA_OPENING
               case STA_CLOSING:
                 ESP_LOGI(TAG,  "Движение: Закрывается" );
-                break;
-              default:
-                ESP_LOGI(TAG,  "Движение: %X", data[11] );			    
-			    
-	    } // switch sub_run_cmd2	    
-            break;
+                break; // STA_CLOSING
+              default: // sub_run_cmd2
+                ESP_LOGI(TAG,  "Движение: %X", data[11] );          
+          
+            } // switch sub_run_cmd2      
+            break; //STA
 
 
 
-            } // switch sub_run_cmd
-            break;
-          default:
+            
+            
+          default: // sub_inf_cmd
             ESP_LOGI(TAG,  "Подменю %X", data[10] );
         }  // switch sub_inf_cmd
 
-        break;
+        break; // SETUP
       case CONTROL:
         ESP_LOGI(TAG,  "Меню CONTROL" );
-        break;
+        break; // CONTROL
       case ROOT:
         ESP_LOGI(TAG,  "Меню ROOT" );
-        break;
+        break; // ROOT
 
-      default:
+      default: // cmd_mnu
         ESP_LOGI(TAG,  "Меню %X", data[9] );
     }  // switch  cmd_mnu
 
