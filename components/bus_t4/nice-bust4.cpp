@@ -248,9 +248,15 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
     std::string pretty_data = format_hex_pretty(vec_data);
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
-
-
-  }
+// получили пакет с данными EVT, начинаем разбирать
+    switch (data[9]) { // cmd_mnu
+      case SETUP:
+        ESP_LOGI(TAG,  "Меню SETUP" );
+        break; //  SETUP
+        
+      default: // cmd_mnu 
+     } // switch cmd_mnu 
+  } // if
   else {  // иначе пакет Responce - подтверждение полученной команды
 
     switch (data[9]) { // cmd_mnu
