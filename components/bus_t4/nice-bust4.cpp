@@ -101,7 +101,7 @@ void NiceBusT4::setup() {
   this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
   // запрос текущей позиции для энкодера
   this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
-  
+
 
 }
 
@@ -248,65 +248,92 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
     std::string pretty_data = format_hex_pretty(vec_data);
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
-// получили пакет с данными EVT, начинаем разбирать
+    // получили пакет с данными EVT, начинаем разбирать
     if ((data[6] == INF) && (data[9] == SETUP)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок
-        ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
-        switch (data[10]) { // cmd_submnu
-          case TYPE_M:
- //           ESP_LOGI(TAG,  "Тип привода %X",  data[14]);
-              switch (data[14]) { //14
-                   case SLIDING:
-                       this->class_gate_ = SLIDING;
-             //        ESP_LOGD(TAG, "Тип ворот: Откатные %#X ", data[14]);
-                       break;
-                   case SECTIONAL:
-                       this->class_gate_ = SECTIONAL;
-             //        ESP_LOGD(TAG, "Тип ворот: Секционные %#X ", data[14]);
-                       break;
-                   case SWING:
-                       this->class_gate_ = SWING;
-             //        ESP_LOGD(TAG, "Тип ворот: Распашные %#X ", data[14]);
-                       break;
-                   case BARRIER:
-                       this->class_gate_ = BARRIER;
-             //        ESP_LOGD(TAG, "Тип ворот: Шлагбаум %#X ", data[14]);
-                       break;
-                   case UPANDOVER:
-                       this->class_gate_ = UPANDOVER;
-             //        ESP_LOGD(TAG, "Тип ворот: Подъемно-поворотные %#X ", data[14]);
-                       break;
-              }  // switch 14
-              break; //  TYPE_M
-          case INF_IO: // ответ на запрос положения концевика откатных ворот
-                  switch (data[16]) { //16
-                      case 0x00:
-                          ESP_LOGI(TAG, "  Концевик не сработал ");
-                          break; // 0x00
-                      case 0x01:
-                          ESP_LOGI(TAG, "  Концевик на закрытие ");
-                          this->position = COVER_CLOSED;
-                          break; //  0x01
-                      case 0x02:
-                          ESP_LOGI(TAG, "  Концевик на открытие ");
-                          this->position = COVER_OPEN;
-                          break; // 0x02
+      ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
+      switch (data[10]) { // cmd_submnu
+        case TYPE_M:
+          //           ESP_LOGI(TAG,  "Тип привода %X",  data[14]);
+          switch (data[14]) { //14
+            case SLIDING:
+              this->class_gate_ = SLIDING;
+              //        ESP_LOGD(TAG, "Тип ворот: Откатные %#X ", data[14]);
+              break;
+            case SECTIONAL:
+              this->class_gate_ = SECTIONAL;
+              //        ESP_LOGD(TAG, "Тип ворот: Секционные %#X ", data[14]);
+              break;
+            case SWING:
+              this->class_gate_ = SWING;
+              //        ESP_LOGD(TAG, "Тип ворот: Распашные %#X ", data[14]);
+              break;
+            case BARRIER:
+              this->class_gate_ = BARRIER;
+              //        ESP_LOGD(TAG, "Тип ворот: Шлагбаум %#X ", data[14]);
+              break;
+            case UPANDOVER:
+              this->class_gate_ = UPANDOVER;
+              //        ESP_LOGD(TAG, "Тип ворот: Подъемно-поворотные %#X ", data[14]);
+              break;
+          }  // switch 14
+          break; //  TYPE_M
+        case INF_IO: // ответ на запрос положения концевика откатных ворот
+          switch (data[16]) { //16
+            case 0x00:
+              ESP_LOGI(TAG, "  Концевик не сработал ");
+              break; // 0x00
+            case 0x01:
+              ESP_LOGI(TAG, "  Концевик на закрытие ");
+              this->position = COVER_CLOSED;
+              break; //  0x01
+            case 0x02:
+              ESP_LOGI(TAG, "  Концевик на открытие ");
+              this->position = COVER_OPEN;
+              break; // 0x02
 
-                  }  // switch 16
-                  this->publish_state();  // публикуем состояние
-            
-            break; //  INF_IO           
-     
-            
-            
-            
-                
- 
-            
-            
-            
-//      default: // cmd_mnu 
-         } // switch cmd_submnu 
-      } // if ответы на запросы GET, пришедшие без ошибок
+          }  // switch 16
+          this->publish_state();  // публикуем состояние
+
+          break; //  INF_IO
+
+
+        //положение максимального открытия энкодера, открытия, закрытия
+
+        case MAX_OPN:
+          this->_max_opn = (data[14] << 8) + data[15];
+          ESP_LOGI(TAG, "Максимальное положение энкодера: %d", this->_max_opn);
+          break;
+
+        case POS_MIN:
+          this->_pos_cls = (data[14] << 8) + data[15];
+          ESP_LOGI(TAG, "Положение закрытых ворот: %d", this->_pos_cls);
+          break;
+
+        case POS_MAX:
+          this->_pos_opn = (data[14] << 8) + data[15];
+          ESP_LOGI(TAG, "Положение открытых ворот: %d", this->_pos_opn);
+          break;
+
+        case CUR_POS:
+          this->_pos_usl = (data[14] << 8) + data[15];
+          this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
+          ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls));
+          this->publish_state();  // публикуем состояние
+
+          break;
+
+
+
+
+
+
+
+
+
+
+          //      default: // cmd_mnu
+      } // switch cmd_submnu
+    } // if ответы на запросы GET, пришедшие без ошибок
   } //  if evt
   else  {  // иначе пакет Responce - подтверждение полученной команды
     ESP_LOGD(TAG, "Получен пакет RSP");
@@ -322,7 +349,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           case RUN:
             ESP_LOGI(TAG,  "Подменю RUN" );
             switch (data[11] - 0x80) { // sub_run_cmd1
-              case SBS: 
+              case SBS:
                 ESP_LOGI(TAG,  "Команда: Пошагово" );
                 break; // SBS
               case STOP:
@@ -343,8 +370,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 break; // STOPPED
               default: // sub_run_cmd1
                 ESP_LOGI(TAG,  "Команда: %X", data[11] );
-            } // switch sub_run_cmd1      
-            break; //RUN  
+            } // switch sub_run_cmd1
+            break; //RUN
 
           case STA:
             ESP_LOGI(TAG,  "Подменю Статус в движении" );
@@ -358,21 +385,21 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 this->current_operation = COVER_OPERATION_CLOSING;
                 break; // STA_CLOSING
               default: // sub_run_cmd2
-                ESP_LOGI(TAG,  "Движение: %X", data[11] );          
-          
-            } // switch sub_run_cmd2      
-                
-                this->_pos_usl = (data[12] << 8) + data[13];
-                this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
-                ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
-                this->publish_state();  // публикуем состояние
-            
+                ESP_LOGI(TAG,  "Движение: %X", data[11] );
+
+            } // switch sub_run_cmd2
+
+            this->_pos_usl = (data[12] << 8) + data[13];
+            this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
+            ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
+            this->publish_state();  // публикуем состояние
+
             break; //STA
 
 
 
-            
-            
+
+
           default: // sub_inf_cmd
             ESP_LOGI(TAG,  "Подменю %X", data[10] );
         }  // switch sub_inf_cmd
@@ -460,56 +487,56 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   } //if
 
   // STA = 0x40,   // статус в движении
-/*
-  if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == STA) ) { // узнаём пакет статуса по содержимому в определённых байтах
-    uint16_t ipos = (data[12] << 8) + data[13];
-    ESP_LOGD(TAG, "Текущий маневр: %#X Позиция: %#X %#X, ipos = %#x,", data[11], data[12], data[13], ipos);
-    this->position = ipos / 2100.0f; // передаем позицию компоненту
+  /*
+    if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == SETUP) && (data[10] == STA) ) { // узнаём пакет статуса по содержимому в определённых байтах
+      uint16_t ipos = (data[12] << 8) + data[13];
+      ESP_LOGD(TAG, "Текущий маневр: %#X Позиция: %#X %#X, ipos = %#x,", data[11], data[12], data[13], ipos);
+      this->position = ipos / 2100.0f; // передаем позицию компоненту
 
-    switch (data[11]) {
-      case OPENING:
-        this->current_operation = COVER_OPERATION_OPENING;
-        ESP_LOGD(TAG, "Статус: Открывается");
-        break;
+      switch (data[11]) {
+        case OPENING:
+          this->current_operation = COVER_OPERATION_OPENING;
+          ESP_LOGD(TAG, "Статус: Открывается");
+          break;
 
-      case OPENING2:
-        this->current_operation = COVER_OPERATION_OPENING;
-        ESP_LOGD(TAG, "Статус: Открывается");
-        break;
+        case OPENING2:
+          this->current_operation = COVER_OPERATION_OPENING;
+          ESP_LOGD(TAG, "Статус: Открывается");
+          break;
 
-      case CLOSING:
-        this->current_operation = COVER_OPERATION_CLOSING;
-        ESP_LOGD(TAG, "Статус: Закрывается");
-        break;
-      case CLOSING2:
-        this->current_operation = COVER_OPERATION_CLOSING;
-        ESP_LOGD(TAG, "Статус: Закрывается");
-        break;
-      case OPENED:
-        this->position = COVER_OPEN;
-        this->current_operation = COVER_OPERATION_IDLE;
-        ESP_LOGD(TAG, "Статус: Открыто");
-        //      this->current_operation = COVER_OPERATION_OPENING;
-        //    ESP_LOGD(TAG, "Статус: Открывается");
-        break;
-      case CLOSED:
-        this->position = COVER_CLOSED;
-        this->current_operation = COVER_OPERATION_IDLE;
-        ESP_LOGD(TAG, "Статус: Закрыто");
-        //      this->current_operation = COVER_OPERATION_CLOSING;
-        //ESP_LOGD(TAG, "Статус: Закрывается");
-        break;
-      case STOPPED:
-        this->current_operation = COVER_OPERATION_IDLE;
-        ESP_LOGD(TAG, "Статус: Остановлено");
-        break;
+        case CLOSING:
+          this->current_operation = COVER_OPERATION_CLOSING;
+          ESP_LOGD(TAG, "Статус: Закрывается");
+          break;
+        case CLOSING2:
+          this->current_operation = COVER_OPERATION_CLOSING;
+          ESP_LOGD(TAG, "Статус: Закрывается");
+          break;
+        case OPENED:
+          this->position = COVER_OPEN;
+          this->current_operation = COVER_OPERATION_IDLE;
+          ESP_LOGD(TAG, "Статус: Открыто");
+          //      this->current_operation = COVER_OPERATION_OPENING;
+          //    ESP_LOGD(TAG, "Статус: Открывается");
+          break;
+        case CLOSED:
+          this->position = COVER_CLOSED;
+          this->current_operation = COVER_OPERATION_IDLE;
+          ESP_LOGD(TAG, "Статус: Закрыто");
+          //      this->current_operation = COVER_OPERATION_CLOSING;
+          //ESP_LOGD(TAG, "Статус: Закрывается");
+          break;
+        case STOPPED:
+          this->current_operation = COVER_OPERATION_IDLE;
+          ESP_LOGD(TAG, "Статус: Остановлено");
+          break;
 
-    }  // switch
+      }  // switch
 
-    this->publish_state();  // публикуем состояние
+      this->publish_state();  // публикуем состояние
 
-  } //if
-*/
+    } //if
+  */
 
 
 
@@ -545,54 +572,9 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
       }  // switch
     } //if2
 
-    // ответ на запрос положения концевика откатных ворот
-    if ((data[9] == 0x04) && (data[10] == 0xd1) && (data[11] == 0x19)) { //if3
-      switch (data[16]) {
-        case 0x00:
-          ESP_LOGD(TAG, "  Концевик не сработал ");
-          //          this->manufacturer_.assign(this->rx_message_.begin()+14,this->rx_message_.end()-2);
-          break;
-        case 0x01:
-          ESP_LOGD(TAG, "  Концевик на закрытие ");
-          this->position = COVER_CLOSED;
-          break;
-        case 0x02:
-          ESP_LOGD(TAG, "  Концевик на открытие ");
-          this->position = COVER_OPEN;
-          break;
-
-      }  // switch
-      this->publish_state();  // публикуем состояние
-    } //if3
-
-    if ((data[6] == 0x08) && (data[9] == 0x04)  && (data[11] == 0x19) && (data[13] == 0x00)) { //положение максимального открытия энкодера, открытия, закрытия
-      switch (data[10]) {
-        case 0x12:
-          this->_max_opn = (data[14] << 8) + data[15];
-          ESP_LOGD(TAG, "Максимальное положение энкодера: %d", this->_max_opn);
-          break;
-
-        case 0x19:
-          this->_pos_cls = (data[14] << 8) + data[15];
-          ESP_LOGD(TAG, "Положение закрытых ворот: %d", this->_pos_cls);
-          break;
-
-        case 0x18:
-          this->_pos_opn = (data[14] << 8) + data[15];
-          ESP_LOGD(TAG, "Положение открытых ворот: %d", this->_pos_opn);
-          break;
-
-        case 0x11:
-          this->_pos_usl = (data[14] << 8) + data[15];
-          this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
-          ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls));
-          this->publish_state();  // публикуем состояние
-
-          break;
 
 
-      }  // switch
-    } //if
+
 
     if ((data[9] == 0x04) && (data[10] == 0x01)  && (data[11] == 0x19) && (data[13] == 0x00)) { //if состояние ворот
 
