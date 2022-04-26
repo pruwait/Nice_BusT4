@@ -319,8 +319,34 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
           ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls));
           this->publish_state();  // публикуем состояние
+          break;
+
+        case 0x01:
+          switch (data[14]) {
+            case OPENED:
+              ESP_LOGI(TAG, "  Ворота открыты");
+              this->position = COVER_OPEN;
+              this->current_operation = COVER_OPERATION_IDLE;
+              break;
+            case CLOSED:
+              ESP_LOGI(TAG, "  Ворота закрыты");
+              this->position = COVER_CLOSED;
+              this->current_operation = COVER_OPERATION_IDLE;
+              break;
+            case 0x01:
+              ESP_LOGI(TAG, "  Ворота остановлены");
+              this->current_operation = COVER_OPERATION_IDLE;
+              //          this->position = COVER_OPEN;
+              break;
+          }  // switch
+          this->publish_state();  // публикуем состояние
 
           break;
+
+
+
+
+
 
 
 
@@ -576,27 +602,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
 
 
-    if ((data[9] == 0x04) && (data[10] == 0x01)  && (data[11] == 0x19) && (data[13] == 0x00)) { //if состояние ворот
 
-      switch (data[14]) {
-        case OPENED:
-          ESP_LOGD(TAG, "  Ворота открыты");
-          this->position = COVER_OPEN;
-          this->current_operation = COVER_OPERATION_IDLE;
-          break;
-        case CLOSED:
-          ESP_LOGD(TAG, "  Ворота закрыты");
-          this->position = COVER_CLOSED;
-          this->current_operation = COVER_OPERATION_IDLE;
-          break;
-        case 0x01:
-          ESP_LOGD(TAG, "  Ворота остановлены");
-          this->current_operation = COVER_OPERATION_IDLE;
-          //          this->position = COVER_OPEN;
-          break;
-      }  // switch
-      this->publish_state();  // публикуем состояние
-    }
 
   } //if  пакет данных
 
