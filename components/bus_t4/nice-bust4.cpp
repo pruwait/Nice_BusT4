@@ -254,7 +254,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         ESP_LOGI(TAG,  "Меню SETUP" );
         break; //  SETUP
         
-      default: // cmd_mnu 
+//      default: // cmd_mnu 
      } // switch cmd_mnu 
   } // if
   else {  // иначе пакет Responce - подтверждение полученной команды
@@ -360,7 +360,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         //        ESP_LOGD(TAG, "Тип ворот: Подъемно-поворотные %#X ", data[14]);
         break;
     }  // switch
-    //   dump_config();
+    
   } //if
 
   // RSP ответ (ReSPonce) на простой прием команды CMD, а не ее выполнение. Также докладывает о завершении операции.
