@@ -376,7 +376,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     if ((data[9] == 0x0A) &&  (data[13] == NOERR)) { // интересуют пакеты от приемника, пришедшие без ошибок
       switch (data[10]) {
         case 0x25:
-          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X команда %X", vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[2]/0x10);
+          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X команда %X", vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[8]/0x10);
           
           break;
       } // switch
