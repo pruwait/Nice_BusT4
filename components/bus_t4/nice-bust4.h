@@ -456,6 +456,7 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> product_;
     std::vector<uint8_t> hardware_;
     std::vector<uint8_t> firmware_;
+    std::vector<uint8_t> oxi_;
 	
     std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
     std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len);	
