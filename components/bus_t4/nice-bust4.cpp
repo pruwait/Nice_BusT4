@@ -253,7 +253,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     // получили пакет с данными EVT, начинаем разбирать
 
-    if ((data[6] == INF) && (data[9] == SETUP)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок
+    if ((data[6] == INF) && (data[9] == SETUP)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок от привода
       ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
       switch (data[10]) { // cmd_submnu
         case TYPE_M:
@@ -348,7 +348,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
           //      default: // cmd_mnu
       } // switch cmd_submnu
-    } // if ответы на запросы GET, пришедшие без ошибок
+    } // if ответы на запросы GET, пришедшие без ошибок от привода
 
     if ((data[6] == INF) && (data[9] == ROOT)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ROOT ответы на запросы GET, пришедшие без ошибок
 
@@ -372,6 +372,16 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
       }  // switch
 
     }  // if интересуют ROOT ответы на запросы GET, пришедшие без ошибок
+  
+    if ((data[9] == 0x0A) &&  (data[13] == NOERR)) { // интересуют пакеты от приемника, пришедшие без ошибок
+      switch (data[10]) {
+        case 0x25:
+          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X", vec_data[5], vec_data[4], vec_data[3], vec_data[2]);
+          
+          break;
+      } // switch
+    }  // if интересуют пакеты от приемника, пришедшие без ошибок
+  
   } //  if evt
   
   
