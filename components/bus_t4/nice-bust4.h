@@ -394,8 +394,8 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
     std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len);	
     std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, {0x00}, 0 );} // для команд без данных
-    std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len){
-	    return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, data, len);} // для команд без данных
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> data){
+	    return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, &data[0], len);} // для команд без данных
     	
 	
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
