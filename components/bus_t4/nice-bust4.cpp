@@ -385,7 +385,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     switch (data[9]) { // cmd_mnu
       case SETUP:
-        ESP_LOGI(TAG,  "Меню SETUP" );
+        ESP_LOGI(TAG,  "Пакет контроллера привода" );
         switch (data[10] + 0x80) { // sub_inf_cmd
           case RUN:
             ESP_LOGI(TAG,  "Подменю RUN" );
@@ -445,18 +445,20 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
             ESP_LOGI(TAG,  "Подменю %X", data[10] );
         }  // switch sub_inf_cmd
 
-        break; // SETUP
+        break; // Пакет контроллера привода
       case CONTROL:
-        ESP_LOGI(TAG,  "Меню CONTROL" );
+        ESP_LOGI(TAG,  "Пакет CONTROL" );
         break; // CONTROL
       case ROOT:
-        ESP_LOGI(TAG,  "Меню ROOT" );
+        ESP_LOGI(TAG,  "Пакет для всех" );
         break; // ROOT
-
+      case 0x0A:
+        ESP_LOGI(TAG,  "Пакет приёмника" );
+        break; // пакет приёмника
       default: // cmd_mnu
         ESP_LOGI(TAG,  "Меню %X", data[9] );
     }  // switch  cmd_mnu
-
+    
 
   } // else
 
