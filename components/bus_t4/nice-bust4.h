@@ -384,6 +384,8 @@ struct packet_rsp_body_t {
 class NiceBusT4 : public Component, public Cover {
   public:
 //    uint8_t whose_byte;	 // Байт для произвольных команд GET/SET
+    std::queue<std::vector<uint8_t>> tx_buffer_;             // очередь команд для отправки	
+	
     void setup() override;
     void loop() override;
     void dump_config() override; // для вывода в лог информации об оборудовнии
@@ -457,7 +459,7 @@ class NiceBusT4 : public Component, public Cover {
     bool validate_message_();                                         // функция проверки полученного сообщения
 
     std::vector<uint8_t> rx_message_;                          // здесь побайтно накапливается принятое сообщение
-    std::queue<std::vector<uint8_t>> tx_buffer_;             // очередь команд для отправки
+    
     bool ready_to_tx_{true};	                           // флаг возможности отправлять команды
 	
     std::vector<uint8_t> manufacturer_;
