@@ -617,7 +617,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());
 
   std::string prod_str(this->product_.begin(), this->product_.end());
-  ESP_LOGCONFIG(TAG, "  Приёмник: %S ", prod_str.c_str());
+  ESP_LOGCONFIG(TAG, "  Продукт: %S ", prod_str.c_str());
 
   std::string hard_str(this->hardware_.begin(), this->hardware_.end());
   ESP_LOGCONFIG(TAG, "  Железо: %S ", hard_str.c_str());
@@ -658,13 +658,13 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
 }
 
 // формирование команды INF с данными и без
-std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len) {
+std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len) {
   std::vector<uint8_t> frame = {to_addr1, to_addr2, (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
   frame.push_back(INF);  // 0x08 mes_type
   frame.push_back(0x06 + len); // mes_size
   uint8_t crc1 = (frame[0] ^ frame[1] ^ frame[2] ^ frame[3] ^ frame[4] ^ frame[5]);
   frame.push_back(crc1);
-  frame.push_back(cmd_mnu);
+  frame.push_back(whose);
   frame.push_back(inf_cmd);
   frame.push_back(run_cmd);
   frame.push_back(0x00); // Error
