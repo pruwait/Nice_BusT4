@@ -224,12 +224,10 @@ enum motor_type  : uint8_t {
   UPANDOVER = 0x05, // up-and-over подъемно-поворотные ворота
   };
 
-enum root_submnu  : uint8_t {
-  ZERO = 0x00,  /* нет */
-  SETTINGS = 0x04,  /* Настройки блока управления */
-//  F = 0x0F, /* нет */
-//  0x13,
-//  0x14,
+enum whose_pkt  : uint8_t {
+  FOR_ALL = 0x00,  /* пакет для/от всех */
+  FOR_CU = 0x04,  /* пакет для/от блока управления */
+  FOR_OXI = 0x0A,  /* пакет для/от приемника OXI */
   };
 	
 enum setup_submnu  : uint8_t {
@@ -319,7 +317,7 @@ struct packet_get_set_body_t {
   uint8_t mes_type;           // тип сообщения, для этих пакетов всегда  8 = INF
   uint8_t mes_size;              // количество байт дальше за вычетом двух байт CRC в конце, для команд = 5
   uint8_t crc1;                // CRC1, XOR шести предыдущих байт
-  uint8_t cmd_mnu;                // Меню команды. cmd_mnu = 1 для команд управления
+  uint8_t whose;                // Чей пакет. Варианты: 00 - общий, 04 - контроллера привода, 0A - приемника OXI
   uint8_t inf_cmd;            // Подменю, в сочетании с группой команды определяет тип отправляемого сообщения
   uint8_t run_cmd;            // Команда, которая должна быть выполнена. Для SET = A9, для GET = 99
   uint8_t offset;               // Смещение для ответов. Влияет на запросы вроде списка поддерживаемых комманд
@@ -365,13 +363,13 @@ struct packet_rsp_body_t {
   uint8_t mes_type;           // тип сообщения, для этих пакетов всегда  8 = INF
   uint8_t mes_size;              // количество байт дальше за вычетом двух байт CRC в конце, для команд = 5
   uint8_t crc1;                // CRC1, XOR шести предыдущих байт
-  uint8_t cmd_mnu;                // девятый байт, меню команды, на которую отвечаем. Значение равно первоначальному меню
+  uint8_t whose;                // Чей пакет. Варианты: 00 - общий, 04 - контроллера привода, 0A - приемника OXI
   uint8_t sub_inf_cmd;            // Из какого подменю получил команду. Значение равно первоначальному подменю
   uint8_t sub_run_cmd;            // На какую команду отвечаем. Значение меньше на 0x80, чем отправленная ранее команда
   uint8_t data_size;            // Размер блока данных
   uint8_t err;               // Ошибки
   uint8_t data_blk;            // Блок данных, может занимать несколько байт
-  uint8_t crc2;            // crc2, XOR всех предыдущих байт до девятого
+  uint8_t crc2;            // crc2, XOR всех предыдущих байт до девятого (Чей пакет)
   uint8_t pct_size2;            // размер тела пакета (без заголовка и CRC. Общее количество  байт минус три), >= 0x0e
 
 };
@@ -459,8 +457,8 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> oxi_;
 	
     std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
-    std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len);	
-    std::vector<uint8_t> gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), cmd_mnu, inf_cmd, run_cmd, {0x00}, 0 );} // для команд без данных
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len);	
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t cmd_mnu, const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, {0x00}, 0 );} // для команд без данных
 
 }; //класс
 
