@@ -383,6 +383,7 @@ struct packet_rsp_body_t {
 // создаю класс, наследую членов классов Component и Cover
 class NiceBusT4 : public Component, public Cover {
   public:
+    uint8_t whose_byte;	 // Байт для произвольных команд GET/SET
     void setup() override;
     void loop() override;
     void dump_config() override; // для вывода в лог информации об оборудовнии
@@ -429,7 +430,7 @@ class NiceBusT4 : public Component, public Cover {
     uint16_t from_addr = 0x0066; //от кого пакет, адрес bust4 шлюза
     uint16_t to_addr = 0x00ff;	 // кому пакет, адрес контроллера привода, которым управляем
     uint16_t oxi_addr = 0x000a;	 // адрес приемника
-    uint8_t whose_byte;	 // Байт для произвольных команд GET/SET
+    
 
 	
 	
