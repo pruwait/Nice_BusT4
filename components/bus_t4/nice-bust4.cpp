@@ -240,8 +240,11 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
 
 // разбираем полученные пакеты
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
-
-  if (data[1] == (data[12] + 0xd)) { // if evt
+  if (data[13] == 0xFD) { // ошибка
+      ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
+    }
+  
+  if ((data[1] == (data[12] + 0xd)) && (data[13] == NOERR)) { // if evt
     ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
@@ -249,9 +252,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     std::string pretty_data = format_hex_pretty(vec_data);
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     // получили пакет с данными EVT, начинаем разбирать
-    if (data[13] == 0xFD) { // ошибка
-      ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
-    }
+
     if ((data[6] == INF) && (data[9] == SETUP)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок
       ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
       switch (data[10]) { // cmd_submnu
