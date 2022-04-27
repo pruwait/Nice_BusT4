@@ -240,7 +240,7 @@ bool NiceBusT4::validate_message_() {                    // проверка п�
 
 // разбираем полученные пакеты
 void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
-  if (data[13] == 0xFD) { // ошибка
+  if ((data[1] == 0x0d) && (data[13] == 0xFD)) { // ошибка
       ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
     }
   
@@ -376,7 +376,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   
   
   
-  else if (data[13] == NOERR) {  // иначе пакет Responce - подтверждение полученной команды
+  else if ((data[14] == NOERR) && (data[1] > 0x0d)) {  // иначе пакет Responce - подтверждение полученной команды
     ESP_LOGD(TAG, "Получен пакет RSP");
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
     std::string str(this->rx_message_.begin() + 12, this->rx_message_.end() - 3);
