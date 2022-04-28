@@ -384,6 +384,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           if (data[12]==0x01) {
             if (data[14]==0x04) { // привод
               this-> to_addr = ((uint16_t)data[4] << 8) | data[5];
+              init_device(data[4], data[5], data[14]);   
             }
             else if (data[14]==0x0A){ // приёмник
               this-> oxi_addr = ((uint16_t)data[4] << 8) | data[5];
