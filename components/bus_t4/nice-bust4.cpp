@@ -674,7 +674,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
 }
 
 // формирование команды INF с данными и без
-std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const std::vector<uint8_t> &data, size_t len) {
+std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data, const std::vector<uint8_t> &data, size_t len) {
   std::vector<uint8_t> frame = {to_addr1, to_addr2, (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
   frame.push_back(INF);  // 0x08 mes_type
   frame.push_back(0x06 + len); // mes_size
@@ -683,7 +683,7 @@ std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_
   frame.push_back(whose);
   frame.push_back(inf_cmd);
   frame.push_back(run_cmd);
-  frame.push_back(0x00); // Error
+  frame.push_back(next_data); // next_data
   frame.push_back(len);
   if (len > 0) {
     frame.insert(frame.end(), data.begin(), data.end()); // блок данных
