@@ -811,7 +811,7 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
 
   // инициализация устройства
   void init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ){
-       this->tx_buffer_.push(gen_inf_cmd(to_addr1, to_addr2, device, TYPE_M, GET, 0x00));
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00));
     
   }
 
