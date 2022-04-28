@@ -74,38 +74,7 @@ void NiceBusT4::setup() {
 //  this->last_init_command_ = 0;
   // кто в сети?
   this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
-  //send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
- /*
-     // запрос типа привода
-//  this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
 
-  // запрос производителя
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, MAN, GET));
-
-  // запрос прошивки
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, FRM, GET));
-
-  //запрос продукта
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, PRD, GET));
-
-  //запрос железа
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, HWR, GET));
-
-  //Состояние ворот (Открыто/Закрыто/Остановлено)
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, INF_STATUS, GET));
-
-  //запрос позиции открытия
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, POS_MAX, GET));
-
-  // запрос позиции закрытия
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, POS_MIN, GET));
-  //запрос описания
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, DSC, GET));
-  // запрос максимального значения для энкодера
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
-  // запрос текущей позиции для энкодера
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
-*/
 }
 
 void NiceBusT4::loop() {
