@@ -426,7 +426,8 @@ class NiceBusT4 : public Component, public Cover {
     uint8_t class_gate_ = 0x55; // 0x01 sliding, 0x02 sectional, 0x03 swing, 0x04 barrier, 0x05 up-and-over
     uint8_t last_init_command_;
 	
-    bool init_flag = false;	
+    bool init_cu_flag = false;	
+    bool init_oxi_flag = false;	
     // переменные для uart
     uint8_t _uart_nr;
     uart_t* _uart = nullptr;
