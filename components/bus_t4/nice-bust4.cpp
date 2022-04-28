@@ -73,7 +73,7 @@ void NiceBusT4::setup() {
 
   this->last_init_command_ = 0;
   // кто в сети?
-  this->tx_buffer_.push(gen_inf_cmd(ROOT, WHO, GET));
+  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
   
   // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
