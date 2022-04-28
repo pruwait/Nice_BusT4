@@ -766,7 +766,24 @@ void NiceBusT4::send_array_cmd (const uint8_t *data, size_t len) {
 }
 
 
+  // генерация и отправка inf команд из yaml конфигурации
+void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command, std::string next_data, bool data_on, std::string data_command) { 
+        std::vector < uint8_t > v_to_addr = raw_cmd_prepare (to_addr);
+        std::vector < uint8_t > v_whose = raw_cmd_prepare (whose);
+        std::vector < uint8_t > v_command = NiceBusT4::raw_cmd_prepare (command);
+        std::vector < uint8_t > v_type_command = raw_cmd_prepare (type_command);
+        std::vector < uint8_t > v_next_data = raw_cmd_prepare (next_data);
+        std::vector < uint8_t > v_data_command = raw_cmd_prepare (data_command);
+        
+  
+        if (data_on) {
+          tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0], v_next_data[0], v_data_command, v_data_command.size()));
+        } else {
+          tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0], v_next_data[0]));
+        }
 
+
+}
 
 
 
