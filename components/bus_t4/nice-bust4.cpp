@@ -123,9 +123,9 @@ void NiceBusT4::loop() {
   
   
 
-  // разрешаем отправку каждые 50 ms
+  // разрешаем отправку каждые 100 ms
   const uint32_t now = millis();
-  if (now - this->last_uart_byte_ > 50) {
+  if (now - this->last_uart_byte_ > 100) {
     this->ready_to_tx_ = true;
     this->last_uart_byte_ = now;
   }
