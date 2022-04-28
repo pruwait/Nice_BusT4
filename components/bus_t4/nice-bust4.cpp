@@ -70,11 +70,11 @@ void NiceBusT4::setup() {
   delay (5000);   // пока привод не стартанёт, на команды отвечать не будет
 
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
-
-  this->last_init_command_ = 0;
+  delay (500)
+//  this->last_init_command_ = 0;
   // кто в сети?
-  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
-  
+  //this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
+  send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
  
 
 }
