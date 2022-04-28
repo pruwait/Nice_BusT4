@@ -244,7 +244,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
       ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
     }
   
-  if ((data[1] == (data[7] + 0x07)) && (data[13] == NOERR)) { // if evt
+  if ((data[1] == (data[12] + 0xd)) && (data[13] == NOERR)) { // if evt
     ESP_LOGD(TAG, "Получен пакет EVT с данными. Размер данных %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
@@ -376,7 +376,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     if ((data[9] == 0x0A) &&  (data[13] == NOERR)) { // интересуют пакеты от приемника, пришедшие без ошибок
       switch (data[10]) {
         case 0x25:
-          ESP_LOGCONFIG(TAG, "Запись № %d, код пульта: %X%X%X%X, команда %X, режим %X", vec_data[1], vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[8]/0x10, vec_data[5]/0x10);
+          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X, команда %X, режим %X", vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[8]/0x10, vec_data[5]/0x10);
           
           break;
       } // switch
@@ -765,21 +765,7 @@ void NiceBusT4::send_array_cmd (const uint8_t *data, size_t len) {
 
 }
 
-  // генерация и отправка inf команд из yaml конфигурации
-void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command, bool data_on, std::string data_command) { 
-        std::vector < uint8_t > v_to_addr = raw_cmd_prepare (to_addr);
-        std::vector < uint8_t > v_whose = raw_cmd_prepare (whose);
-        std::vector < uint8_t > v_command = NiceBusT4::raw_cmd_prepare (command);
-        std::vector < uint8_t > v_type_command = raw_cmd_prepare (type_command);
-        std::vector < uint8_t > v_data_command = raw_cmd_prepare (data_command);
-        if (data_on) {
-          tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0], v_data_command, v_data_command.size()));
-        } else {
-          tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0]));
-        }
-  
-  
-}
+
 
 
 
