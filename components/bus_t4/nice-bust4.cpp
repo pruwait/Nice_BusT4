@@ -77,7 +77,7 @@ void NiceBusT4::setup() {
   send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
  
      // запрос типа привода
-  this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
+//  this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
 
   // запрос производителя
   this->tx_buffer_.push(gen_inf_cmd(ROOT, MAN, GET));
@@ -808,6 +808,11 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
 
 }
 
+  // инициализация устройства
+  void init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ){
+       this->tx_buffer_.push(gen_inf_cmd(to_addr1, to_addr2, device, TYPE_M, GET, 0x00));
+    
+  }
 
 
 
