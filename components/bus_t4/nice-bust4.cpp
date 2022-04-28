@@ -657,9 +657,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   std::string firm_str(this->firmware_.begin(), this->firmware_.end());
   ESP_LOGCONFIG(TAG, "  Прошивка: %S ", firm_str.c_str());
 
-  ESP_LOGCONFIG(TAG, "  Адрес шлюза: %#x%#x", (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF));
-  ESP_LOGCONFIG(TAG, "  Адрес привода: %#x%#x", (uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF));
-  ESP_LOGCONFIG(TAG, "  Адрес приёмника: %#x%#x", (uint8_t)(this->oxi_addr >> 8), (uint8_t)(this->oxi_addr & 0xFF));
+  ESP_LOGCONFIG(TAG, "  Адрес шлюза: %x%x", (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF));
+  ESP_LOGCONFIG(TAG, "  Адрес привода: %x%x", (uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF));
+  ESP_LOGCONFIG(TAG, "  Адрес приёмника: %x%x", (uint8_t)(this->oxi_addr >> 8), (uint8_t)(this->oxi_addr & 0xFF));
 }
 
 
