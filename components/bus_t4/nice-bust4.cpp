@@ -87,7 +87,7 @@ void NiceBusT4::loop() {
   //      this->last_update_ = millis();
   //  }  // if  каждые 500ms
 
-  if ((millis()  > 1000) && (this-> class_gate_ = 0x55))
+  if ((millis()  > 1000) && (this-> class_gate_ == 0x55))
   {
    // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
