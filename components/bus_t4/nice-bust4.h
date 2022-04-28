@@ -405,7 +405,7 @@ class NiceBusT4 : public Component, public Cover {
 	
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
     
-    std::vector<uint8_t> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки
+
    
     void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
     void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 	
@@ -447,7 +447,7 @@ class NiceBusT4 : public Component, public Cover {
     uint16_t oxi_addr = 0x000a;	 // адрес приемника
     
 
-	
+    std::vector<uint8_t> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки	
 	
     
     	
