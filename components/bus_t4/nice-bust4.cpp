@@ -342,6 +342,11 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               this->current_operation = COVER_OPERATION_IDLE;
               //          this->position = COVER_OPEN;
               break;
+            case 0x04:
+              ESP_LOGI(TAG, "  Ворота остановлены в режиме калитки 1");
+              this->current_operation = COVER_OPERATION_IDLE;
+              //          this->position = COVER_OPEN;
+              break;            
           }  // switch
           this->publish_state();  // публикуем состояние
           break;
