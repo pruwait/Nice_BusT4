@@ -374,7 +374,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     }  // if  ROOT ответы на запросы GET, пришедшие без ошибок
   
     if ((data[9] == 0x0A) &&  (data[10] == 0x25) &&  (data[11] == 0x01) &&  (data[12] == 0x0A) &&  (data[13] == NOERR)) { //  пакеты от приемника с информацией о списке пультов, пришедшие без ошибок
-          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X, команда %X, кнопка %X", vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[8]/0x10, vec_data[5]/0x10);
+          ESP_LOGCONFIG(TAG, "Номер пульта: %X%X%X%X, команда: %X, кнопка: %X, режим: %X, счётчик нажатий: %d", vec_data[5], vec_data[4], vec_data[3], vec_data[2], vec_data[8]/0x10, vec_data[5]/0x10, vec_data[7]+0x01, vec_data[6]);
     }  // if 
     
     if ((data[9] == 0x0A) &&  (data[10] == 0x26) &&  (data[11] == 0x41) &&  (data[12] == 0x08) &&  (data[13] == NOERR)) { //  пакеты от приемника с информацией о считанной кнопке пульта
