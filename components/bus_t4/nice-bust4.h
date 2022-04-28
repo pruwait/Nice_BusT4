@@ -402,7 +402,8 @@ class NiceBusT4 : public Component, public Cover {
 
    
     void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
-    void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 	
+    void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 
+    void set_oxi_address(uint16_t oxi_address) {this->oxi_addr = oxi_address;}
 //      uint8_t start_code = START_CODE;
 //      uint8_t address_h = (uint8_t)(to_address >> 8);
 //      uint8_t address_l = (uint8_t)(to_address & 0xFF);
