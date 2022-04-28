@@ -377,10 +377,10 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           //          ESP_LOGCONFIG(TAG, "  Прошивка: %S ", str.c_str());
           if (data[12]==0x01) {
             if (data[14]==0x04) { // привод
-              this-> to_addr = ((uint16_t)data[5] << 8) | data[4];
+              this-> to_addr = ((uint16_t)data[4] << 8) | data[5];
             }
             else if (data[14]==0x0A){ // приёмник
-              this-> oxi_addr = ((uint16_t)data[5] << 8) | data[4];
+              this-> oxi_addr = ((uint16_t)data[4] << 8) | data[5];
             }
           }
           
