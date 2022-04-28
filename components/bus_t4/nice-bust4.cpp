@@ -87,7 +87,7 @@ void NiceBusT4::loop() {
   //      this->last_update_ = millis();
   //  }  // if  каждые 500ms
 
-  if ((millis()  > 1000) && (this-> class_gate_ == 0x55))
+  if ((millis()  > 1000) && (this-> last_init_command_ == 0))
   {
    // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
@@ -118,6 +118,8 @@ void NiceBusT4::loop() {
   this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
   // запрос текущей позиции для энкодера
   this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
+    
+  this->last_init_command_ == 1;
 } //if
   
   
