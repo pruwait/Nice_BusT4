@@ -87,7 +87,7 @@ void NiceBusT4::loop() {
   //      this->last_update_ = millis();
   //  }  // if  каждые 500ms
 
-  if ((millis()  > 20000) && (!this->init_flag))
+  if ((millis()  > 30000) && (!this->init_flag))
   {
    // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
