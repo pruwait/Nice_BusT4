@@ -453,7 +453,7 @@ class NiceBusT4 : public Component, public Cover {
     	    
     	
 	
-   // void send_array_cmd (std::vector<char> data);
+    void init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device );
     void send_array_cmd (std::vector<uint8_t> data);	
     void send_array_cmd (const uint8_t *data, size_t len);
 
