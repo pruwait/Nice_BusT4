@@ -72,6 +72,9 @@ void NiceBusT4::setup() {
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
 
   this->last_init_command_ = 0;
+  // кто в сети?
+  this->tx_buffer_.push(gen_inf_cmd(ROOT, WHO, GET));
+  
   // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
 
