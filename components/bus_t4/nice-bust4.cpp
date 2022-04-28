@@ -73,9 +73,9 @@ void NiceBusT4::setup() {
   delay (500);
 //  this->last_init_command_ = 0;
   // кто в сети?
-  //this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
-  send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
- 
+  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
+  //send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
+ /*
      // запрос типа привода
 //  this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
 
@@ -105,7 +105,7 @@ void NiceBusT4::setup() {
   this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
   // запрос текущей позиции для энкодера
   this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
-
+*/
 }
 
 void NiceBusT4::loop() {
@@ -811,10 +811,24 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
 
   // инициализация устройства
   void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ){
-       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00));
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00)); // запрос типа привода
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, MAN, GET, 0x00)); // запрос производителя
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, FRM, GET, 0x00)); //  запрос прошивки
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, PRD, GET, 0x00)); //запрос продукта
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, HWR, GET, 0x00)); //запрос железа
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MAX, GET, 0x00));   //запрос позиции открытия
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MIN, GET, 0x00)); // запрос позиции закрытия
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, DSC, GET, 0x00)); //запрос описания
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
+    
     
   }
 
+   
+  
+  
 
 
 }  // namespace bus_t4
