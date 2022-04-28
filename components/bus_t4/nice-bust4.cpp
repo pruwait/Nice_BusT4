@@ -76,20 +76,7 @@ void NiceBusT4::setup() {
   //this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, ROOT, WHO, GET, 0x00));
   send_array_cmd({0x55,0x0D,0x00,0xFF,0x00,0x81,0x08,0x06,0x70,0x00,0x04,0x99,0x00,0x00,0x9D,0x0D});
  
-
-}
-
-void NiceBusT4::loop() {
-
-  //  if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
-
-
-  //      this->last_update_ = millis();
-  //  }  // if  каждые 500ms
-
-  if ((millis()  > 30000) && (!this->init_flag))
-  {
-   // запрос типа привода
+     // запрос типа привода
   this->tx_buffer_.push(gen_inf_cmd(SETUP, TYPE_M, GET));
 
   // запрос производителя
@@ -118,9 +105,21 @@ void NiceBusT4::loop() {
   this->tx_buffer_.push(gen_inf_cmd(SETUP, MAX_OPN, GET));
   // запрос текущей позиции для энкодера
   this->tx_buffer_.push(gen_inf_cmd(SETUP, CUR_POS, GET));
+
+}
+
+void NiceBusT4::loop() {
+
+  //  if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
+
+
+  //      this->last_update_ = millis();
+  //  }  // if  каждые 500ms
+
+ 
+
     
-  this->init_flag = true;
-} //if
+
   
   
 
