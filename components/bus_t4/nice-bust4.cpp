@@ -785,13 +785,12 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, FRM, GET, 0x00)); //  запрос прошивки
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, PRD, GET, 0x00)); //запрос продукта
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, HWR, GET, 0x00)); //запрос железа
-       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MAX, GET, 0x00));   //запрос позиции открытия
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MIN, GET, 0x00)); // запрос позиции закрытия
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, ROOT, DSC, GET, 0x00)); //запрос описания
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
        tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
-    
+       tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)    
     
   }
 
