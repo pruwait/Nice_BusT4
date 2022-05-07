@@ -442,7 +442,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 break;
                             
             } // switch sub_run_cmd2                 
-            
+            this->publish_state();  // публикуем состояние
             break; //RUN
 
           case STA:
