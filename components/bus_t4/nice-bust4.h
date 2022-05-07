@@ -139,6 +139,7 @@ enum sub_run_cmd2 : uint8_t {
   OPENED   = 0x04,
   CLOSED   = 0x05,
   STOPPED   = 0x08,	
+  ENDTIME = 0x06, // закончен маневр по таймауту	
 
 };	
 
