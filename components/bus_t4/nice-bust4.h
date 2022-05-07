@@ -119,13 +119,11 @@ enum cmd_mnu  : uint8_t {
 
 /* используется в ответах STA*/
 enum Status : uint8_t {
-  OPENING  = 0x83,
-  CLOSING  = 0x84,
-  OPENING2  = 0x02,
-  CLOSING2  = 0x03,	
-  OPENED   = 0x04,
-  CLOSED   = 0x05,
-  STOPPED   = 0x08,		
+//  OPENING  = 0x83,
+//  CLOSING  = 0x84,
+//  OPENING2  = 0x02,
+//  CLOSING2  = 0x03,	
+  		
   UNKNOWN   = 0x00,
   UNLOCKED = 0x02,
   NO_LIM   = 0x06, /* no limits set */ 
@@ -138,6 +136,9 @@ enum Status : uint8_t {
 enum sub_run_cmd2 : uint8_t {
   STA_OPENING  = 0x02,	
   STA_CLOSING  = 0x03,
+  OPENED   = 0x04,
+  CLOSED   = 0x05,
+  STOPPED   = 0x08,	
 
 };	
 
