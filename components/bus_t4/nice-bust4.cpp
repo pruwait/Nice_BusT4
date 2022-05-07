@@ -413,6 +413,9 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 this->current_operation = COVER_OPERATION_IDLE;
                 ESP_LOGI(TAG, "Команда: Остановлено");
                 break; // STOPPED
+              case ENDTIME:
+                ESP_LOGI(TAG, "Операция завершена по таймауту");
+                break; // 
               default: // sub_run_cmd1
                 ESP_LOGI(TAG,  "Команда: %X", data[11] );
             } // switch sub_run_cmd1
