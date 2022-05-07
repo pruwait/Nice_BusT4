@@ -416,8 +416,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               case ENDTIME:
                 ESP_LOGI(TAG, "Операция завершена по таймауту");
                 break; // 
-              default: // sub_run_cmd1
-                ESP_LOGI(TAG,  "Команда: %X", data[11] );
+
             } // switch sub_run_cmd1
             
             switch (data[11]) { // sub_run_cmd2
@@ -443,7 +442,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 this->current_operation = COVER_OPERATION_IDLE;
                 ESP_LOGI(TAG, "Операция: Остановлено");
                 break;
-                            
+              default: // sub_run_cmd1
+                ESP_LOGI(TAG,  "Операция: %X", data[11] );                            
             } // switch sub_run_cmd2                 
             this->publish_state();  // публикуем состояние
             break; //RUN
