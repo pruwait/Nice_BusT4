@@ -104,9 +104,9 @@ enum mes_type : uint8_t {
 
 /* меню команды в иерархии oview*/
 enum cmd_mnu  : uint8_t {
-  ROOT = 0x00,
+#  ROOT = 0x00,
   CONTROL = 0x01,
-  SETUP  = 0x04,
+#  MCU  = 0x04,
 };
 
 
