@@ -363,6 +363,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
             }
             else if (data[14] == 0x0A) { // приёмник
               this-> oxi_addr = ((uint16_t)data[4] << 8) | data[5];
+              init_device(data[4], data[5], data[14]);
             }
           }
 
@@ -836,18 +837,23 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
 
 // инициализация устройства
 void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ) {
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00)); // запрос типа привода
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, MAN, GET, 0x00)); // запрос производителя
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, FRM, GET, 0x00)); //  запрос прошивки
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, HWR, GET, 0x00)); //запрос железа
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MAX, GET, 0x00));   //запрос позиции открытия
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MIN, GET, 0x00)); // запрос позиции закрытия
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, DSC, GET, 0x00)); //запрос описания
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
-  tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
-
+  if (device == 0x04) {
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00)); // запрос типа привода
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, MAN, GET, 0x00)); // запрос производителя
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, FRM, GET, 0x00)); //  запрос прошивки
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, HWR, GET, 0x00)); //запрос железа
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MAX, GET, 0x00));   //запрос позиции открытия
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MIN, GET, 0x00)); // запрос позиции закрытия
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, DSC, GET, 0x00)); //запрос описания
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
+  }
+  if (device == 0x0a) {
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
+  }
+  
 }
 
 
