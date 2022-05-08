@@ -337,11 +337,12 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           this->manufacturer_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           break;
         case PRD:
-          if (this-> oxi_addr == ((uint16_t)data[4] << 8) | data[5]) { // если пакет от приемника
+          if (((uint8_t)(this->oxi_addr >> 8) == data[4]) && ((uint8_t)(this->oxi_addr & 0xFF) == data[5])) { // если пакет от приемника
+            ESP_LOGCONFIG(TAG, "  Приёмник: %S ", str.c_str());
             this->oxi_product.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           } // если пакет от приемника
-          else if (this-> to_addr == ((uint16_t)data[4] << 8) | data[5]) { // если пакет от контроллера привода
-          //          ESP_LOGCONFIG(TAG, "  Продукт: %S ", str.c_str());
+          else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода
+            ESP_LOGCONFIG(TAG, "  Привод: %S ", str.c_str());
             this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           }
           break;
