@@ -462,7 +462,7 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> product_;
     std::vector<uint8_t> hardware_;
     std::vector<uint8_t> firmware_;
-    std::vector<uint8_t> oxi_;
+    std::vector<uint8_t> oxi_product;
 	
 
 }; //класс
