@@ -337,8 +337,13 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           this->manufacturer_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           break;
         case PRD:
+          if (this-> oxi_addr == ((uint16_t)data[4] << 8) | data[5]) { // если пакет от приемника
+            this->oxi_product.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          } // если пакет от приемника
+          else if (this-> to_addr == ((uint16_t)data[4] << 8) | data[5]) { // если пакет от контроллера привода
           //          ESP_LOGCONFIG(TAG, "  Продукт: %S ", str.c_str());
-          this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+            this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+          }
           break;
         case HWR:
           //          ESP_LOGCONFIG(TAG, "  Железо: %S ", str.c_str());
@@ -672,7 +677,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Производитель: %S ", manuf_str.c_str());
 
   std::string prod_str(this->product_.begin(), this->product_.end());
-  ESP_LOGCONFIG(TAG, "  Продукт: %S ", prod_str.c_str());
+  ESP_LOGCONFIG(TAG, "  Привод: %S ", prod_str.c_str());
 
   std::string hard_str(this->hardware_.begin(), this->hardware_.end());
   ESP_LOGCONFIG(TAG, "  Железо: %S ", hard_str.c_str());
@@ -683,6 +688,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Адрес шлюза: 0x%04X", from_addr);
   ESP_LOGCONFIG(TAG, "  Адрес привода: 0x%04X", to_addr);
   ESP_LOGCONFIG(TAG, "  Адрес приёмника: 0x%04X", oxi_addr);
+  
+  std::string oxi_prod_str(this->oxi_product.begin(), this->oxi_product.end());
+  ESP_LOGCONFIG(TAG, "  Приёмник: %S ", prod_str.c_str());
 }
 
 
