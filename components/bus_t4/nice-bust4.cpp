@@ -691,7 +691,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Адрес приёмника: 0x%04X", oxi_addr);
   
   std::string oxi_prod_str(this->oxi_product.begin(), this->oxi_product.end());
-  ESP_LOGCONFIG(TAG, "  Приёмник: %S ", prod_str.c_str());
+  ESP_LOGCONFIG(TAG, "  Приёмник: %S ", oxi_prod_str.c_str());
 }
 
 
