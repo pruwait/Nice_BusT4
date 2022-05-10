@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import cover
 from esphome.const import CONF_ADDRESS, CONF_ID, CONF_UPDATE_INTERVAL, CONF_USE_ADDRESS
 
-#AUTO_LOAD = ['rs485']
+
 
 bus_t4_ns = cg.esphome_ns.namespace('bus_t4')
 Nice = bus_t4_ns.class_('NiceBusT4', cover.Cover, cg.Component)
@@ -19,7 +19,7 @@ CONFIG_SCHEMA = cover.COVER_SCHEMA.extend({
 def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     yield cg.register_component(var, config)
-#    yield rs485.register_rs485_device(var, config)
+
     yield cover.register_cover(var, config)
 
     if CONF_ADDRESS in config:
@@ -31,6 +31,6 @@ def to_code(config):
         cg.add(var.set_from_address(use_address))
         
         
-    if CONF_UPDATE_INTERVAL in config:
-        update_interval = config[CONF_UPDATE_INTERVAL]
-        cg.add(var.set_update_interval(update_interval))
+ #   if CONF_UPDATE_INTERVAL in config:
+ #       update_interval = config[CONF_UPDATE_INTERVAL]
+ #       cg.add(var.set_update_interval(update_interval))
