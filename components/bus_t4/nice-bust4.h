@@ -360,42 +360,28 @@ struct packet_rsp_body_t {
 */
 
 
-
-
 // создаю класс, наследую членов классов Component и Cover
 class NiceBusT4 : public Component, public Cover {
   public:
-//    uint8_t whose_byte;	 // Байт для произвольных команд GET/SET
-
-	
     void setup() override;
     void loop() override;
     void dump_config() override; // для вывода в лог информации об оборудовнии
-//    void send_open();
+
     void send_raw_cmd(std::string data);
     void send_cmd(uint8_t data) {this->tx_buffer_.push(gen_control_cmd(data));}	
     void send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command,  std::string next_data, bool data_on, std::string data_command);
 		
     std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
-    
- 
-	
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
     
-
-   
     void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
     void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 
     void set_oxi_address(uint16_t oxi_address) {this->oxi_addr = oxi_address;}
-//      uint8_t start_code = START_CODE;
-//      uint8_t address_h = (uint8_t)(to_address >> 8);
-//      uint8_t address_l = (uint8_t)(to_address & 0xFF);
-//      this->header_ = {&start_code, &address_h, &address_l};
     
-    void set_update_interval(uint32_t update_interval) {  // интервал получения статуса привода
+ /*   void set_update_interval(uint32_t update_interval) {  // интервал получения статуса привода
       this->update_interval_ = update_interval;
-    }
-    //  void on_rs485_data(const std::vector<uint8_t> &data) override;
+    }*/
+
     cover::CoverTraits get_traits() override;
 
   protected:
@@ -406,13 +392,13 @@ class NiceBusT4 : public Component, public Cover {
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
     uint32_t last_uart_byte_{0};
-  //  uint8_t current_request_{GET_STATUS}; // осталось от dooya, возможно придется переписать согласно статусам от nice
+
     uint8_t last_published_op_;
     float last_published_pos_;
 
 	
     uint8_t class_gate_ = 0x55; // 0x01 sliding, 0x02 sectional, 0x03 swing, 0x04 barrier, 0x05 up-and-over
-    uint8_t last_init_command_;
+//    uint8_t last_init_command_;
 	
     bool init_cu_flag = false;	
     bool init_oxi_flag = false;	
