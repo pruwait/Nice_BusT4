@@ -112,23 +112,6 @@ enum cmd_mnu  : uint8_t {
 };
 
 
-
-
-
-	
-
-/* используется в ответах STA*/
-	/*
-enum Status : uint8_t {
-
-  UNKNOWN   = 0x00,
-  UNLOCKED = 0x02,
-  NO_LIM   = 0x06, 
-  NO_INF   = 0x0F, 
-};
-*/
-
-
 /* используется в ответах STA*/
 enum sub_run_cmd2 : uint8_t {
   STA_OPENING  = 0x02,	
@@ -371,7 +354,7 @@ class NiceBusT4 : public Component, public Cover {
     void send_cmd(uint8_t data) {this->tx_buffer_.push(gen_control_cmd(data));}	
     void send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command,  std::string next_data, bool data_on, std::string data_command);
 		
-    std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
+
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
     
     void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
@@ -425,13 +408,14 @@ class NiceBusT4 : public Component, public Cover {
     std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data){
 	    return gen_inf_cmd(to_addr1, to_addr2, whose, inf_cmd, run_cmd, next_data, {0x00}, 0);} // для команд с адресом и без данных 	
     	    
-    	
+    // генерация cmd команд
+    std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);	    	
 	
     void init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device );
     void send_array_cmd (std::vector<uint8_t> data);	
     void send_array_cmd (const uint8_t *data, size_t len);
 
-	
+
     void parse_status_packet (const std::vector<uint8_t> &data); // разбираем пакет статуса
     
     void handle_char_(uint8_t c);                                         // обработчик полученного байта
