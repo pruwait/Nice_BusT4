@@ -376,6 +376,7 @@ class NiceBusT4 : public Component, public Cover {
     void dump_config() override; // для вывода в лог информации об оборудовнии
 //    void send_open();
     void send_raw_cmd(std::string data);
+    void send_cmd(uint8_t data) {this->tx_buffer_.push(gen_control_cmd(data));}	
     void send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command,  std::string next_data, bool data_on, std::string data_command);
 		
     std::vector<uint8_t> gen_control_cmd(const uint8_t control_cmd);
