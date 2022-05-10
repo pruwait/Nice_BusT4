@@ -118,18 +118,15 @@ enum cmd_mnu  : uint8_t {
 	
 
 /* используется в ответах STA*/
+	/*
 enum Status : uint8_t {
-//  OPENING  = 0x83,
-//  CLOSING  = 0x84,
-//  OPENING2  = 0x02,
-//  CLOSING2  = 0x03,	
-  		
+
   UNKNOWN   = 0x00,
   UNLOCKED = 0x02,
-  NO_LIM   = 0x06, /* no limits set */ 
-  NO_INF   = 0x0F, /* no additional information */
+  NO_LIM   = 0x06, 
+  NO_INF   = 0x0F, 
 };
-
+*/
 
 
 /* используется в ответах STA*/
