@@ -292,7 +292,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           break;
 
         case POS_MAX:
-          this->_pos_opn = (data[14] << 8) + data[15];
+          if (((data[14] << 8) + data[15])>0x00) { // если в ответе от привода есть данные о положении открытия
+          this->_pos_opn = (data[14] << 8) + data[15];}
           ESP_LOGI(TAG, "Положение открытых ворот: %d", this->_pos_opn);
           break;
 
