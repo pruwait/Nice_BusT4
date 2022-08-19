@@ -862,11 +862,10 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
 }
 
 // генерация и отправка команд установки контроллеру привода из yaml конфигурации с минимальными параметрами
-  void set_mcu(std::string command, std::string data_command) {
-    std::vector < uint8_t > v_command = NiceBusT4::raw_cmd_prepare (command);
+void NiceBusT4::set_mcu(std::string command, std::string data_command) {
+    std::vector < uint8_t > v_command = raw_cmd_prepare (command);
     std::vector < uint8_t > v_data_command = raw_cmd_prepare (data_command);
-
-  tx_buffer_.push(gen_inf_cmd(0x04, v_command[0], 0xa9, 0x00, v_data_command));
+    tx_buffer_.push(gen_inf_cmd(0x04, v_command[0], 0xa9, 0x00, v_data_command));
   }
   
 // инициализация устройства
