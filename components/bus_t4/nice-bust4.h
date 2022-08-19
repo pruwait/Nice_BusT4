@@ -352,7 +352,8 @@ class NiceBusT4 : public Component, public Cover {
 
     void send_raw_cmd(std::string data);
     void send_cmd(uint8_t data) {this->tx_buffer_.push(gen_control_cmd(data));}	
-    void send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command,  std::string next_data, bool data_on, std::string data_command);
+    void send_inf_cmd(std::string to_addr, std::string whose, std::string command, std::string type_command,  std::string next_data, bool data_on, std::string data_command); // длинная команда
+    void set_mcu(std::string command, std::string data_command); // команда контроллеру мотора
 		
 
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
