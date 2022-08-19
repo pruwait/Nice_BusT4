@@ -858,11 +858,19 @@ void NiceBusT4::send_inf_cmd(std::string to_addr, std::string whose, std::string
     tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0], v_next_data[0], v_data_command, v_data_command.size()));
   } else {
     tx_buffer_.push(gen_inf_cmd(v_to_addr[0], v_to_addr[1], v_whose[0], v_command[0], v_type_command[0], v_next_data[0]));
-  }
-
-
+  } // else
 }
 
+// генерация и отправка команд установки контроллеру привода из yaml конфигурации с минимальными параметрами
+  void set_mcu(std::string command, std::string data_command) {
+    std::vector < uint8_t > v_command = NiceBusT4::raw_cmd_prepare (command);
+    
+    std::vector < uint8_t > v_next_data = raw_cmd_prepare (next_data);
+    std::vector < uint8_t > v_data_command = raw_cmd_prepare (data_command);
+
+  tx_buffer_.push(gen_inf_cmd(0x04, v_command[0], 0xa9, 0x00, v_data_command));
+  }
+  
 // инициализация устройства
 void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ) {
   if (device == 0x04) {
