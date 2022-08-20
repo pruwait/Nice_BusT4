@@ -53,6 +53,17 @@ api:
       lambda: |-
         my_nice_cover -> NiceBusT4::send_inf_cmd(to_addr, whose, command, type_command, next_data, data_on, data_command);
 
+# распознавание длины створки
+  - service: gate_length_recognition
+    then:
+      lambda: |-
+         rb500hs -> NiceBusT4::set_mcu("0b","01");
+
+# распознавание устройств BlueBus
+  - service: devices_recognition
+    then:
+      lambda: |-
+         rb500hs -> NiceBusT4::set_mcu("0a","01");    
 
 
 #        std::vector < uint8_t > v_to_addr = my_nice_cover -> NiceBusT4::raw_cmd_prepare (to_addr);
