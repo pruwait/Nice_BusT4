@@ -329,6 +329,15 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         case AUTOCLS:
           this->autocls_flag = data[14];
           break;
+          
+        case PH_CLS_ON:
+          this->photocls_flag = data[14];
+          break;  
+          
+        case ALW_CLS_ON:
+          this->alwayscls_flag = data[14];
+          break;  
+          
       } // switch cmd_submnu
     } // if ответы на запросы GET, пришедшие без ошибок от привода
 
@@ -888,6 +897,9 @@ void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uin
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, AUTOCLS, GET, 0x00)); // Автозакрытие
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, PH_CLS_ON, GET, 0x00)); // Закрыть после Фото
+    tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, ALW_CLS_ON, GET, 0x00)); // Всегда закрывать
   }
   if (device == 0x0a) {
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
