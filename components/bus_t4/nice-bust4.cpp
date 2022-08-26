@@ -321,12 +321,14 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               this->current_operation = COVER_OPERATION_IDLE;
               //          this->position = COVER_OPEN;
               break;
-
           }  // switch
           this->publish_state();  // публикуем состояние
           break;
 
           //      default: // cmd_mnu
+        case AUTOCLS:
+          this->autocls_flag = data[14];
+          break;
       } // switch cmd_submnu
     } // if ответы на запросы GET, пришедшие без ошибок от привода
 
@@ -721,7 +723,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   std::string oxi_dsc_str(this->oxi_description.begin(), this->oxi_description.end());
   ESP_LOGCONFIG(TAG, "  Описание приёмника: %S ", oxi_dsc_str.c_str());
  
-  ESP_LOGCONFIG(TAG, "  Автозакрытие: %S ", autocls_flag ? "Да" : "Нет");
+  ESP_LOGCONFIG(TAG, "  Автозакрытие - L1: %S ", autocls_flag ? "Да" : "Нет");
+  ESP_LOGCONFIG(TAG, "  Закрыть после фото - L2: %S ", photocls_flag ? "Да" : "Нет");
+  ESP_LOGCONFIG(TAG, "  Всегда закрывать - L3: %S ", alwayscls_flag ? "Да" : "Нет");
   
 }
 
