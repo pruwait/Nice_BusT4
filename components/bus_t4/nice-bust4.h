@@ -387,8 +387,9 @@ class NiceBusT4 : public Component, public Cover {
     bool init_cu_flag = false;	
     bool init_oxi_flag = false;	
 // настройки привода
-    bool autocls_flag; //Автозакрывание
-    bool photocls_flag; //Закрыть после фото
+    bool autocls_flag; // Автозакрывание - L1
+    bool photocls_flag; // Закрыть после фото - L2
+    bool alwayscls_flag; // Всегда закрывать - L3
 	
 	
     // переменные для uart
