@@ -720,6 +720,8 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   
   std::string oxi_dsc_str(this->oxi_description.begin(), this->oxi_description.end());
   ESP_LOGCONFIG(TAG, "  Описание приёмника: %S ", oxi_dsc_str.c_str());
+ 
+  SP_LOGCONFIG(TAG, "  Автозакрытие: %S ", autocls_flag ? "Да" : "Нет");
   
 }
 
