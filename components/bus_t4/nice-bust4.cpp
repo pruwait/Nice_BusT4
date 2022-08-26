@@ -340,6 +340,22 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           
       } // switch cmd_submnu
     } // if ответы на запросы GET, пришедшие без ошибок от привода
+    
+    if ((data[6] == INF) && (data[9] == FOR_CU)  && (data[11] == SET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы SET, пришедшие без ошибок от привода    
+      switch (data[10]) { // cmd_submnu
+        case AUTOCLS:
+          tx_buffer_.push(gen_inf_cmd(FOR_CU, AUTOCLS, GET)); // Автозакрытие
+          break;
+          
+        case PH_CLS_ON:
+          tx_buffer_.push(gen_inf_cmd(FOR_CU, PH_CLS_ON, GET)); // Закрыть после Фото
+          break;  
+          
+        case ALW_CLS_ON:
+          tx_buffer_.push(gen_inf_cmd(FOR_CU, ALW_CLS_ON, GET)); // Всегда закрывать
+          break;  
+      }// switch cmd_submnu
+    }// if ответы на запросы SET, пришедшие без ошибок от привода
 
     if ((data[6] == INF) && (data[9] == FOR_ALL)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют FOR_ALL ответы на запросы GET, пришедшие без ошибок
 
@@ -885,7 +901,7 @@ void NiceBusT4::set_mcu(std::string command, std::string data_command) {
   
 // инициализация устройства
 void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uint8_t device ) {
-  if (device == 0x04) {
+  if (device == FOR_CU) {
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, TYPE_M, GET, 0x00)); // запрос типа привода
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, MAN, GET, 0x00)); // запрос производителя
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, FRM, GET, 0x00)); //  запрос прошивки
@@ -901,7 +917,7 @@ void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uin
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, PH_CLS_ON, GET, 0x00)); // Закрыть после Фото
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, ALW_CLS_ON, GET, 0x00)); // Всегда закрывать
   }
-  if (device == 0x0a) {
+  if (device == FOR_OXI) {
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, HWR, GET, 0x00)); //запрос железа    
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, FRM, GET, 0x00)); //  запрос прошивки    
