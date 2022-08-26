@@ -346,6 +346,12 @@ struct packet_rsp_body_t {
 // создаю класс, наследую членов классов Component и Cover
 class NiceBusT4 : public Component, public Cover {
   public:
+	
+    // настройки привода
+    bool autocls_flag; // Автозакрывание - L1
+    bool photocls_flag; // Закрыть после фото - L2
+    bool alwayscls_flag; // Всегда закрывать - L3
+		
     void setup() override;
     void loop() override;
     void dump_config() override; // для вывода в лог информации об оборудовнии
@@ -386,11 +392,7 @@ class NiceBusT4 : public Component, public Cover {
 	
     bool init_cu_flag = false;	
     bool init_oxi_flag = false;	
-// настройки привода
-    bool autocls_flag; // Автозакрывание - L1
-    bool photocls_flag; // Закрыть после фото - L2
-    bool alwayscls_flag; // Всегда закрывать - L3
-	
+
 	
     // переменные для uart
     uint8_t _uart_nr;
