@@ -79,11 +79,11 @@ void NiceBusT4::setup() {
 
 void NiceBusT4::loop() {
 
-  //  if ((millis() - this->last_update_) > this->update_interval_) {    // каждые 500ms
+    if ((millis() - this->last_update_) > 600000) {    // каждые 10 минут
 
-
-  //      this->last_update_ = millis();
-  //  }  // if  каждые 500ms
+//        if 
+        this->last_update_ = millis();
+    }  // if  каждые 10 минут
 
 
 
