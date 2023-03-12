@@ -44,8 +44,8 @@ void NiceBusT4::control(const CoverCall &call) {
   if (call.get_stop()) {
     // uint8_t data[2] = {CONTROL, STOP};
     this->tx_buffer_.push(gen_control_cmd(STOP));
-   //this->tx_buffer_.push(gen_inf_cmd(FOR_CU, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
-   // this->tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));    // запрос условного текущего положения привода, для DPRO924 при этом ожидается выставления положений, лучше не использовать
+    this->tx_buffer_.push(gen_inf_cmd(FOR_CU, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
+    this->tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));    // запрос условного текущего положения привода
 
 
 
@@ -767,7 +767,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   frame.push_back(CONTROL);
   frame.push_back(RUN);
   frame.push_back(control_cmd);
-  frame.push_back(0x64); // OFFSET CMD
+  frame.push_back(0x64); // OFFSET CMD, DPRO924 отказался работать с 0x00, хотя остальные приводы реагировали на команды
   uint8_t crc2 = (frame[7] ^ frame[8] ^ frame[9] ^ frame[10]);
   frame.push_back(crc2);
   uint8_t f_size = frame.size();
