@@ -767,7 +767,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
   frame.push_back(CONTROL);
   frame.push_back(RUN);
   frame.push_back(control_cmd);
-  frame.push_back(0x00);
+  frame.push_back(0x64); // OFFSET CMD
   uint8_t crc2 = (frame[7] ^ frame[8] ^ frame[9] ^ frame[10]);
   frame.push_back(crc2);
   uint8_t f_size = frame.size();
