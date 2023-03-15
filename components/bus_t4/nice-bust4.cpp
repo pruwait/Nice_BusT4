@@ -80,8 +80,8 @@ void NiceBusT4::setup() {
 void NiceBusT4::loop() {
 
     if ((millis() - this->last_update_) > 600000) {    // каждые 10 минут
-
-//        if 
+// если привод не определился с первого раза, попробуем позже
+        if (this->class_gate_ == 0x55) {this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));}
         this->last_update_ = millis();
     }  // if  каждые 10 минут
 
