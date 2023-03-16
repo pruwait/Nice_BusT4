@@ -1,3 +1,7 @@
+Доступен перевод на английский
+[English](https://github.com/xdanik/Nice_BusT4)
+
+
 # ESPHOME компонент для управления приводами Nice по протоколу Bus T4
 # Nice Bus T4 protocol
 
