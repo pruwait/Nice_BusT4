@@ -57,13 +57,13 @@ api:
   - service: gate_length_recognition
     then:
       lambda: |-
-         rb500hs -> NiceBusT4::set_mcu("0b","01");
+         my_nice_cover -> NiceBusT4::set_mcu("0b","01");
 
 # распознавание устройств BlueBus
   - service: devices_recognition
     then:
       lambda: |-
-         rb500hs -> NiceBusT4::set_mcu("0a","01");    
+         my_nice_cover -> NiceBusT4::set_mcu("0a","01");    
 
 
 #        std::vector < uint8_t > v_to_addr = my_nice_cover -> NiceBusT4::raw_cmd_prepare (to_addr);
