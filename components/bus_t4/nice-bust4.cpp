@@ -20,7 +20,7 @@ using namespace esphome::cover;
 CoverTraits NiceBusT4::get_traits() {
   auto traits = CoverTraits();
   traits.set_supports_position(true);
-  traits.set_supports_stop(bool supports_stop);
+  traits.set_supports_stop(true);
   return traits;
 }
 
