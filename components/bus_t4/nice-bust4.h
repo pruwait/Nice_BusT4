@@ -435,7 +435,7 @@ class NiceBusT4 : public Component, public Cover {
     std::queue<std::vector<uint8_t>> tx_buffer_;             // очередь команд для отправки	
     bool ready_to_tx_{true};	                           // флаг возможности отправлять команды
 	
-    std::vector<uint8_t> manufacturer_;
+    std::vector<uint8_t> manufacturer_ = {0x55, 0x55};  // при инициализации неизвестный производитель
     std::vector<uint8_t> product_;
     std::vector<uint8_t> hardware_;
     std::vector<uint8_t> firmware_;
