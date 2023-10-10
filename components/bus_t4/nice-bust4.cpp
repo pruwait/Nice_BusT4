@@ -68,23 +68,24 @@ void NiceBusT4::control(const CoverCall &call) {
 }
 
 void NiceBusT4::setup() {
-  delay (5000);   // пока привод не стартанёт, на команды отвечать не будет
+//  delay (5000);   // пока привод не стартанёт, на команды отвечать не будет
 
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
-  delay (500);
+//  delay (500);
   //  this->last_init_command_ = 0;
   // кто в сети?
-  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
+//  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
 
 }
 
 void NiceBusT4::loop() {
 
-    if ((millis() - this->last_update_) > 600000) {    // каждые 10 минут
+    if ((millis() - this->last_update_) > 60000) {    // каждую минуту
 // если привод не определился с первого раза, попробуем позже
-        if (this->class_gate_ == 0x55) {this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));}
+        std::vector<uint8_t> unknown = {0x55, 0x55};
+        if ((this->class_gate_ == 0x55) || (this->manufacturer_ == unknown)) {this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));}
         this->last_update_ = millis();
-    }  // if  каждые 10 минут
+    }  // if  каждую минуту
 
 
 
