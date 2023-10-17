@@ -351,6 +351,7 @@ class NiceBusT4 : public Component, public Cover {
     bool autocls_flag; // Автозакрывание - L1
     bool photocls_flag; // Закрыть после фото - L2
     bool alwayscls_flag; // Всегда закрывать - L3
+    bool init_ok = false; //  определение привода при включении
 		
     void setup() override;
     void loop() override;
