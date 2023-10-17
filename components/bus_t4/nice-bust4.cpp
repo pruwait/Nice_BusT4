@@ -327,6 +327,10 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               ESP_LOGI(TAG, "  Статус ворот неизвестен");
               this->current_operation = COVER_OPERATION_IDLE;
               break;
+             case 0x0b:
+              ESP_LOGI(TAG, "  Поиск положений сделан");
+              this->current_operation = COVER_OPERATION_IDLE;
+              break;
           }  // switch
           this->publish_state();  // публикуем состояние
           break;
