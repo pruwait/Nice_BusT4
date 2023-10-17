@@ -83,9 +83,8 @@ void NiceBusT4::loop() {
     if ((millis() - this->last_update_) > 10000) {    // каждые 10 секунд
 // если привод не определился с первого раза, попробуем позже
         std::vector<uint8_t> unknown = {0x55, 0x55};
-        if (this->init_ok == false;) 
-          {this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
-           break; }
+        if (this->init_ok == false) 
+          {this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));}
         
         else if (this->class_gate_ == 0x55) init_device((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), 0x04);  
         else if (this->manufacturer_ == unknown)  {
