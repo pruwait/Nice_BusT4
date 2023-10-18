@@ -295,6 +295,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
         case MAX_OPN:
           if (is_walky) {
             this->_max_opn = data[15];
+            this->_pos_opn = data[15];
           }
           else {  
             this->_max_opn = (data[14] << 8) + data[15];
@@ -314,7 +315,12 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           break;
 
         case CUR_POS:
-          this->_pos_usl = (data[14] << 8) + data[15];
+          if (is_walky) {
+            this->_pos_usl = data[15];
+          }
+          else {
+            this->_pos_usl = (data[14] << 8) + data[15];
+          }
           this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
           ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
           this->publish_state();  // публикуем состояние
