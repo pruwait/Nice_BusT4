@@ -381,7 +381,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
       }// switch cmd_submnu
     }// if ответы на запросы SET, пришедшие без ошибок от привода
 
-    if ((data[6] == INF) && (data[9] == FOR_ALL)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют FOR_ALL ответы на запросы GET, пришедшие без ошибок
+    if ((data[6] == INF) && (data[9] == FOR_ALL)  && ((data[11] == GET - 0x80) || (data[11] == GET - 0x81)) && (data[13] == NOERR)) { // интересуют FOR_ALL ответы на запросы GET, пришедшие без ошибок
 
       switch (data[10]) {
         case MAN:
