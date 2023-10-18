@@ -230,7 +230,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
   }
 
-  if ((data[11] == 0x18) || (data[11] == 0x19)) && (data[13] == NOERR)) { // if evt
+  if (((data[11] == 0x18) || (data[11] == 0x19)) && (data[13] == NOERR)) { // if evt
     ESP_LOGD(TAG, "Получен пакет EVT с данными. Последняя ячейка %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
