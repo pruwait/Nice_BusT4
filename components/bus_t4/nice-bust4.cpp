@@ -396,6 +396,11 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода
 //            ESP_LOGCONFIG(TAG, "  Привод: %S ", str.c_str());
             this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
+            std::vector<uint8_t> wla1 = {0x57,0x4C,0x41,0x31,0x00,0x06,0x57}; // для понимания, что привод Walky
+            if (this->product_ == wla1) { 
+              this->init_ok = true;
+              ESP_LOGCONFIG(TAG, "  Привод WALKY!: %S ", str.c_str());
+                                        }
           }
           break;
         case HWR:
