@@ -223,8 +223,8 @@ enum command_pkt  : uint8_t {
   T_VAL          = 0xB1,    /*Alarm threshold value Порог до обслуживания в количестве маневров*/
   P_COUNT        = 0xB2,    /* Partial count Выделенный счетчик*/
   C_MAIN         = 0xB4,    /* Cancel maintenance Отмена обслуживания */
-  DIAG_BB        = 0xD0     /*   DIAGNOSTICS of bluebus devices */  
-  INF_IO         = 0xD1,    //	состояние входов-выходов	
+  DIAG_BB        = 0xD0,     /*   DIAGNOSTICS of bluebus devices */  
+  INF_IO         = 0xD1,    /*	состояние входов-выходов	*/
   DIAG_PAR       = 0xD2,    /*  DIAGNOSTICS of other parameters   */
   
   
