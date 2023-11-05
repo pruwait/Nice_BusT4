@@ -32,7 +32,7 @@
 * Собрал прототип устройства, протестировал работу.
 * Собрал сниффер для отлова пакетов между OVIEW и устройствами busT4
 * Написал компонент, который имеет возможность управлять приводами и приёмниками по протоколу BusT4
-* Проверил работу на Wingo5000 c блоком [MCA5](img/IMG_20220113_160221.jpg), [Robus RB500HS](img/IMG_20220113_160221.jpg), Soona SO2000, [Rd400](img/rba4.jpg), [D-PRO924](img/924.jpg), [Walky WL1024C](img/walky.jpg).
+* Проверил работу на Wingo5000 c блоком [MCA5](img/IMG_20220113_160221.jpg), [Robus RB500HS](img/3hs.jpg, Soona SO2000, [Rd400](img/rba4.jpg), [D-PRO924](img/924.jpg), [Walky WL1024C](img/walky.jpg).
 
 ![alt text](img/Schematic_esphome_bust4_adapter.png "Схема адаптера bus-t4")
 
