@@ -878,8 +878,8 @@ std::vector<uint8_t> NiceBusT4::raw_cmd_prepare (std::string data) { // подг
 
   //  data.erase(remove_if(data.begin(), data.end(), ::isspace), data.end()); //удаляем пробелы
   data.erase(remove_if(data.begin(), data.end(), [](const unsigned char ch) {
-    return (!(iswalnum(ch)) );
-//    return (!(isalnum(ch)) );
+//    return (!(iswalnum(ch)) );
+    return (!(isalnum(ch)) );
   }), data.end()); //удаляем всё кроме букв и цифр
 
   //assert (data.size () % 2 == 0); // проверяем чётность
