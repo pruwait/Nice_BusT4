@@ -330,7 +330,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           this->publish_state();  // публикуем состояние
           break;
 
-        case 0x01:
+        case INF_STATUS:
           switch (data[14]) {
             case OPENED:
               ESP_LOGI(TAG, "  Ворота открыты");
@@ -511,6 +511,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 ESP_LOGI(TAG, "Команда: Остановлено");
                 break; // STOPPED
               case ENDTIME:
+                this->current_operation = COVER_OPERATION_IDLE;
                 ESP_LOGI(TAG, "Операция завершена по таймауту");
                 break; // 
 
