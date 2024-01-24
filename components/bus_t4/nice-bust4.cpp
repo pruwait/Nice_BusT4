@@ -876,12 +876,10 @@ void NiceBusT4::send_raw_cmd(std::string data) {
 
 //  Сюда нужно добавить проверку на неправильные данные от пользователя
 std::vector<uint8_t> NiceBusT4::raw_cmd_prepare (std::string data) { // подготовка введенных пользователем данных для возможности отправки
-
-  //  data.erase(remove_if(data.begin(), data.end(), ::isspace), data.end()); //удаляем пробелы
-  data.erase(remove_if(data.begin(), data.end(), [](const unsigned char ch) {
-//    return (!(iswalnum(ch)) );
-    return (!(isalnum(ch)) );
-  }), data.end()); //удаляем всё кроме букв и цифр
+// удаляем всё кроме шестнадцатеричных букв и цифр
+data.erase(remove_if(data.begin(), data.end(), [](const unsigned char ch) {
+    return (!(isxdigit(ch)) );
+  }), data.end()); 
 
   //assert (data.size () % 2 == 0); // проверяем чётность
   std::vector < uint8_t > frame;
