@@ -47,7 +47,7 @@ void NiceBusT4::control(const CoverCall &call) {
     this->tx_buffer_.push(gen_control_cmd(STOP));
     this->tx_buffer_.push(gen_inf_cmd(FOR_CU, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
     if (is_walky) {
-      tx_buffer_.push(gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));  // запрос текущей позиции для энкодера
+      tx_buffer_.push(gen_inf_cmd(this->addr_to[0], this->addr_to[1], FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));  // запрос текущей позиции для энкодера
     }
     else {
       this->tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));    // запрос условного текущего положения привода
@@ -93,9 +93,9 @@ void NiceBusT4::loop() {
           this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
         }
         
-        else if (this->class_gate_ == 0x55) init_device((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), 0x04);  
+        else if (this->class_gate_ == 0x55) init_device(this->addr_to[0], this->addr_to[1], 0x04);  
         else if (this->manufacturer_ == unknown)  {
-         init_device((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), 0x04);  
+         init_device(this->addr_to[0], this->addr_to[1], 0x04);  
         }
         this->last_update_ = millis();
     }  // if  каждую минуту
@@ -407,11 +407,11 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           this->manufacturer_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           break;
         case PRD:
-          if (((uint8_t)(this->oxi_addr >> 8) == data[4]) && ((uint8_t)(this->oxi_addr & 0xFF) == data[5])) { // если пакет от приемника
+          if ((this->addr_oxi[0] == data[4]) && (this->addr_oxi[1] == data[5])) { // если пакет от приемника
 //            ESP_LOGCONFIG(TAG, "  Приёмник: %S ", str.c_str());
             this->oxi_product.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           } // если пакет от приемника
-          else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода
+          else if ((this->addr_to[0] == data[4]) && (this->addr_to[1] == data[5])) { // если пакет от контроллера привода
 //            ESP_LOGCONFIG(TAG, "  Привод: %S ", str.c_str());
             this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
             std::vector<uint8_t> wla1 = {0x57,0x4C,0x41,0x31,0x00,0x06,0x57}; // для понимания, что привод Walky
@@ -422,38 +422,40 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           }
           break;
         case HWR:
-          if (((uint8_t)(this->oxi_addr >> 8) == data[4]) && ((uint8_t)(this->oxi_addr & 0xFF) == data[5])) { // если пакет от приемника
+          if ((this->addr_oxi[0] == data[4]) && (this->addr_oxi[1] == data[5])) { // если пакет от приемника
             this->oxi_hardware.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           }
-          else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода          
+          else if ((this->addr_to[0] == data[4]) && (this->addr_to[1] == data[5])) { // если пакет от контроллера привода          
           this->hardware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           } //else
           break;
         case FRM:
-          if (((uint8_t)(this->oxi_addr >> 8) == data[4]) && ((uint8_t)(this->oxi_addr & 0xFF) == data[5])) { // если пакет от приемника
+          if ((this->addr_oxi[0] == data[4]) && (this->addr_oxi[1] == data[5])) { // если пакет от приемника
             this->oxi_firmware.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           }
-          else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода          
+          else if ((this->addr_to[0] == data[4]) && (this->addr_to[1] == data[5])) { // если пакет от контроллера привода          
             this->firmware_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           } //else
           break;
         case DSC:
-          if (((uint8_t)(this->oxi_addr >> 8) == data[4]) && ((uint8_t)(this->oxi_addr & 0xFF) == data[5])) { // если пакет от приемника
+          if ((this->addr_oxi[0] == data[4]) && (this->addr_oxi[1] == data[5])) { // если пакет от приемника
             this->oxi_description.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           }
-          else if (((uint8_t)(this->to_addr >> 8) == data[4]) && ((uint8_t)(this->to_addr & 0xFF) == data[5])) { // если пакет от контроллера привода          
+          else if ((this->addr_to[0] == data[4]) && (this->addr_to[1] == data[5])) { // если пакет от контроллера привода          
             this->description_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
           } //else
           break;
         case WHO:
           if (data[12] == 0x01) {
             if (data[14] == 0x04) { // привод
-              this-> to_addr = ((uint16_t)data[4] << 8) | data[5];
+              this->addr_to[0] = data[4];
+              this->addr_to[1] = data[5];
               this->init_ok = true;
      //         init_device(data[4], data[5], data[14]);
             }
             else if (data[14] == 0x0A) { // приёмник
-              this-> oxi_addr = ((uint16_t)data[4] << 8) | data[5];
+              this->addr_oxi[0] = data[4];
+              this->addr_oxi[1] = data[5];
               init_device(data[4], data[5], data[14]);
             }
           }
@@ -789,9 +791,9 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
   ESP_LOGCONFIG(TAG, "  Описание привода: %S ", dsc_str.c_str());
 
 
-  ESP_LOGCONFIG(TAG, "  Адрес шлюза: 0x%04X", from_addr);
-  ESP_LOGCONFIG(TAG, "  Адрес привода: 0x%04X", to_addr);
-  ESP_LOGCONFIG(TAG, "  Адрес приёмника: 0x%04X", oxi_addr);
+  ESP_LOGCONFIG(TAG, "  Адрес шлюза: 0x%02X%02X", addr_from[0], addr_from[1]);
+  ESP_LOGCONFIG(TAG, "  Адрес привода: 0x%02X%02X", addr_to[0], addr_to[1]);
+  ESP_LOGCONFIG(TAG, "  Адрес приёмника: 0x%02X%02X", addr_oxi[0], addr_oxi[1]);
   
   std::string oxi_prod_str(this->oxi_product.begin(), this->oxi_product.end());
   ESP_LOGCONFIG(TAG, "  Приёмник: %S ", oxi_prod_str.c_str());
@@ -816,7 +818,7 @@ void NiceBusT4::dump_config() {    //  добавляем в  лог инфор�
 
 //формирование команды управления
 std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
-  std::vector<uint8_t> frame = {(uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
+  std::vector<uint8_t> frame = {this->addr_to[0], this->addr_to[1], this->addr_from[0], this->addr_from[1]}; // заголовок
   frame.push_back(CMD);  // 0x01
   frame.push_back(0x05);
   uint8_t crc1 = (frame[0] ^ frame[1] ^ frame[2] ^ frame[3] ^ frame[4] ^ frame[5]);
@@ -841,7 +843,7 @@ std::vector<uint8_t> NiceBusT4::gen_control_cmd(const uint8_t control_cmd) {
 
 // формирование команды INF с данными и без
 std::vector<uint8_t> NiceBusT4::gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data, const std::vector<uint8_t> &data, size_t len) {
-  std::vector<uint8_t> frame = {to_addr1, to_addr2, (uint8_t)(this->from_addr >> 8), (uint8_t)(this->from_addr & 0xFF)}; // заголовок
+  std::vector<uint8_t> frame = {to_addr1, to_addr2, this->addr_from[0], this->addr_from[1]}; // заголовок
   frame.push_back(INF);  // 0x08 mes_type
   frame.push_back(0x06 + len); // mes_size
   uint8_t crc1 = (frame[0] ^ frame[1] ^ frame[2] ^ frame[3] ^ frame[4] ^ frame[5]);
