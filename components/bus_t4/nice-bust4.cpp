@@ -46,13 +46,7 @@ void NiceBusT4::control(const CoverCall &call) {
     // uint8_t data[2] = {CONTROL, STOP};
     this->tx_buffer_.push(gen_control_cmd(STOP));
     this->tx_buffer_.push(gen_inf_cmd(FOR_CU, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
-    if (is_walky) {
-      tx_buffer_.push(gen_inf_cmd(this->addr_to[0], this->addr_to[1], FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));  // запрос текущей позиции для энкодера
-    }
-    else {
-      this->tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));    // запрос условного текущего положения привода
-    }
-
+    this->request_position();
 
   } else if (call.get_position().has_value()) {
     auto pos = *call.get_position();
@@ -968,14 +962,11 @@ void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uin
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MAX, GET, 0x00));   //запрос позиции открытия
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, POS_MIN, GET, 0x00)); // запрос позиции закрытия
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, FOR_ALL, DSC, GET, 0x00)); //запрос описания
-    if (is_walky) {
-      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00, {0x01}, 1));   // запрос максимального значения для энкодера
-      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00, {0x01}, 1));  // запрос текущей позиции для энкодера
-    }
-    else { 
-      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));   // запрос максимального значения для энкодера
-      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, CUR_POS, GET, 0x00));  // запрос текущей позиции для энкодера
-    }  
+    if (is_walky)  // запрос максимального значения для энкодера
+      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00, {0x01}, 1));
+    else
+      tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, MAX_OPN, GET, 0x00));
+    request_position();  // запрос текущего положения
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, INF_STATUS, GET, 0x00)); //Состояние ворот (Открыто/Закрыто/Остановлено)
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, AUTOCLS, GET, 0x00)); // Автозакрытие
     tx_buffer_.push(gen_inf_cmd(addr1, addr2, device, PH_CLS_ON, GET, 0x00)); // Закрыть после Фото
@@ -990,10 +981,13 @@ void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uin
   
 }
 
-
-
-
-
+// Запрос условного текущего положения привода
+void NiceBusT4::request_position(void) {
+  if (is_walky)
+    tx_buffer_.push(gen_inf_cmd(this->addr_to[0], this->addr_to[1], FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));
+  else
+    tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));
+}
 
 }  // namespace bus_t4
 }  // namespace esphome

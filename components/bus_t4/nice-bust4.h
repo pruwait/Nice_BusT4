@@ -400,7 +400,7 @@ class NiceBusT4 : public Component, public Cover {
   protected:
     void control(const cover::CoverCall &call) override;
     void send_command_(const uint8_t *data, uint8_t len);
-
+    void request_position(void);  // Запрос условного текущего положения привода
 
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
