@@ -484,66 +484,73 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     switch (data[9]) { // cmd_mnu
       case FOR_CU:
-        ESP_LOGI(TAG,  "Пакет контроллера привода" );
+        ESP_LOGI(TAG, "Пакет контроллера привода");
         switch (data[10] + 0x80) { // sub_inf_cmd
           case RUN:
-            ESP_LOGI(TAG,  "Подменю RUN" );
-            switch (data[11] - 0x80) { // sub_run_cmd1
-              case SBS:
-                ESP_LOGI(TAG,  "Команда: Пошагово" );
-                break; // SBS
-              case STOP:
-                ESP_LOGI(TAG,  "Команда: STOP" );
-                break; // STOP
-              case OPEN:
-                ESP_LOGI(TAG,  "Команда: OPEN" );
-                this->current_operation = COVER_OPERATION_OPENING;
-                break; // OPEN
-              case CLOSE:
-                ESP_LOGI(TAG,  "Команда: CLOSE" );
-                this->current_operation = COVER_OPERATION_CLOSING;                
-                break;  // CLOSE
-              case P_OPN1:
-                ESP_LOGI(TAG,  "Команда: Частичное открывание" );
-                break; // P_OPN1
-              case STOPPED:
-                this->current_operation = COVER_OPERATION_IDLE;
-                ESP_LOGI(TAG, "Команда: Остановлено");
-                break; // STOPPED
-              case ENDTIME:
-                this->current_operation = COVER_OPERATION_IDLE;
-                ESP_LOGI(TAG, "Операция завершена по таймауту");
-                break; // 
-
-            } // switch sub_run_cmd1
-            
-            switch (data[11]) { // sub_run_cmd2
-              case STA_OPENING:
-                ESP_LOGI(TAG,  "Операция: Открывается" );
-                this->current_operation = COVER_OPERATION_OPENING;
-                break; // OPEN
-              case STA_CLOSING:
-                ESP_LOGI(TAG,  "Операция: Закрывается" );
-                this->current_operation = COVER_OPERATION_CLOSING;                
-                break;  // CLOSING
-              case CLOSED:
-                ESP_LOGI(TAG,  "Операция: Закрыто" );
-                this->position = COVER_CLOSED;
-                this->current_operation = COVER_OPERATION_IDLE;
-                break;  // CLOSED  
-              case OPENED:
-                this->position = COVER_OPEN;
-                ESP_LOGI(TAG, "Операция: Открыто");
-                this->current_operation = COVER_OPERATION_IDLE;
-                break;
-              case STOPPED:
-                this->current_operation = COVER_OPERATION_IDLE;
-                ESP_LOGI(TAG, "Операция: Остановлено");
-                break;
-              default: // sub_run_cmd1
-                ESP_LOGI(TAG,  "Операция: %X", data[11] );                            
-            } // switch sub_run_cmd2                 
-            this->publish_state();  // публикуем состояние
+            ESP_LOGI(TAG, "Подменю RUN");
+			if (data[11] >= 0x80) {
+			  switch (data[11] - 0x80) {  // sub_run_cmd1
+			    case SBS:
+			      ESP_LOGI(TAG, "Команда: Пошагово");
+			      break;
+			    case STOP:
+			      ESP_LOGI(TAG, "Команда: STOP");
+			      break;
+			    case OPEN:
+			      ESP_LOGI(TAG, "Команда: OPEN");
+			      this->current_operation = COVER_OPERATION_OPENING;
+			      break;
+			    case CLOSE:
+			      ESP_LOGI(TAG, "Команда: CLOSE");
+			      this->current_operation = COVER_OPERATION_CLOSING;
+			      break;
+			    case P_OPN1:
+			      ESP_LOGI(TAG, "Команда: Частичное открывание 1");
+			      break;
+			    case STOPPED:
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      ESP_LOGI(TAG, "Команда: Остановлено");
+			      break;
+			    case ENDTIME:
+			      ESP_LOGI(TAG, "Операция завершена по таймауту");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      break;
+			    default:
+			      ESP_LOGI(TAG, "Неизвестная команда: %X", data[11]);
+			  }  // switch sub_run_cmd1
+			} else {
+			  switch (data[11]) {  // sub_run_cmd2
+			    case STA_OPENING:
+			      ESP_LOGI(TAG, "Операция: Открывается");
+			      this->current_operation = COVER_OPERATION_OPENING;
+			      break;
+			    case STA_CLOSING:
+			      ESP_LOGI(TAG, "Операция: Закрывается");
+			      this->current_operation = COVER_OPERATION_CLOSING;
+			      break;
+			    case CLOSED:
+			      ESP_LOGI(TAG, "Операция: Закрыто");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      this->position = COVER_CLOSED;
+			      break;
+			    case OPENED:
+			      ESP_LOGI(TAG, "Операция: Открыто");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      this->position = COVER_OPEN;
+			      break;
+			    case STOPPED:
+			      ESP_LOGI(TAG, "Операция: Остановлено");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      break;
+			    case PART_OPENED:
+			      ESP_LOGI(TAG, "Операция: Частично открыто");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      break;
+			    default:
+			      ESP_LOGI(TAG, "Неизвестная операция: %X", data[11]);
+			  }  // switch sub_run_cmd2
+			}
+			this->publish_state();  // публикуем состояние
             break; //RUN
 
           case STA:

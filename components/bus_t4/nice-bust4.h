@@ -114,14 +114,14 @@ enum cmd_mnu  : uint8_t {
 
 /* используется в ответах STA*/
 enum sub_run_cmd2 : uint8_t {
-  STA_OPENING  = 0x02,	
-  STA_CLOSING  = 0x03,
-  OPENED   = 0x04,
-  CLOSED   = 0x05,
-  STOPPED   = 0x08,	
-  ENDTIME = 0x06, // закончен маневр по таймауту	
-
-};	
+  STA_OPENING = 0x02,
+  STA_CLOSING = 0x03,
+       OPENED = 0x04,
+       CLOSED = 0x05,
+      ENDTIME = 0x06,  // закончен маневр по таймауту
+      STOPPED = 0x08,
+  PART_OPENED = 0x10,  // частичное открывание
+};
 
 /* Ошибки */
 enum errors_byte  : uint8_t {
