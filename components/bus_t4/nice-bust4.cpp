@@ -313,15 +313,10 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           break;
 
         case CUR_POS:
-          if (is_walky) {
-            this->_pos_usl = data[15];
-          }
-          else {
-            this->_pos_usl = (data[14] << 8) + data[15];
-          }
-          this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
-          ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
-          this->publish_state();  // публикуем состояние
+          if (is_walky)
+            update_position(data[15]);
+          else
+            update_position((data[14] << 8) + data[15]);
           break;
 
         case INF_STATUS:
@@ -580,16 +575,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
                 
             } // switch sub_run_cmd2
 
-            this->_pos_usl = (data[12] << 8) + data[13];
-            this->position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
-            ESP_LOGD(TAG, "Условное положение ворот: %d, положение в %%: %f", _pos_usl, (_pos_usl - _pos_cls) * 100.0f / (_pos_opn - _pos_cls));
-            this->publish_state();  // публикуем состояние
-
+            update_position((data[12] << 8) + data[13]);
             break; //STA
-
-
-
-
 
           default: // sub_inf_cmd
             ESP_LOGI(TAG,  "Подменю %X", data[10] );
@@ -987,6 +974,15 @@ void NiceBusT4::request_position(void) {
     tx_buffer_.push(gen_inf_cmd(this->addr_to[0], this->addr_to[1], FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));
   else
     tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));
+}
+
+// Обновление текущего положения привода
+void NiceBusT4::update_position(uint16_t newpos) {
+  _pos_usl = newpos;
+  position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
+  ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %.3f", newpos, position);
+  if (position < CLOSED_POSITION_THRESHOLD) position = COVER_CLOSED;
+  publish_state();  // публикуем состояние
 }
 
 }  // namespace bus_t4

@@ -68,6 +68,7 @@ static const uint32_t BAUD_BREAK = 9200; /* бодрэйт для длинног
 static const uint32_t BAUD_WORK = 19200; /* рабочий бодрэйт */
 static const uint8_t START_CODE = 0x55; /*стартовый байт пакета */
 
+static const float CLOSED_POSITION_THRESHOLD = 0.007;  // Значение положения привода в процентах, ниже которого ворота считаются полностью закрытыми
 
 /* сетевые настройки esp
   Ряд может принимать значения от 0 до 63, по-умолчанию 0
@@ -401,6 +402,7 @@ class NiceBusT4 : public Component, public Cover {
     void control(const cover::CoverCall &call) override;
     void send_command_(const uint8_t *data, uint8_t len);
     void request_position(void);  // Запрос условного текущего положения привода
+    void update_position(uint16_t newpos);  // Обновление текущего положения привода
 
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
