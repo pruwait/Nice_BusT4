@@ -328,26 +328,28 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           switch (data[14]) {
             case OPENED:
               ESP_LOGI(TAG, "  Ворота открыты");
-              this->position = COVER_OPEN;
               this->current_operation = COVER_OPERATION_IDLE;
+              this->position = COVER_OPEN;
               break;
             case CLOSED:
               ESP_LOGI(TAG, "  Ворота закрыты");
-              this->position = COVER_CLOSED;
               this->current_operation = COVER_OPERATION_IDLE;
+              this->position = COVER_CLOSED;
               break;
             case 0x01:
               ESP_LOGI(TAG, "  Ворота остановлены");
               this->current_operation = COVER_OPERATION_IDLE;
-              //          this->position = COVER_OPEN;
+              request_position();
               break;
             case 0x00:
               ESP_LOGI(TAG, "  Статус ворот неизвестен");
               this->current_operation = COVER_OPERATION_IDLE;
+              request_position();
               break;
              case 0x0b:
               ESP_LOGI(TAG, "  Поиск положений сделан");
               this->current_operation = COVER_OPERATION_IDLE;
+              request_position();
               break;
               case STA_OPENING:
               ESP_LOGI(TAG, "  Идёт открывание");
@@ -504,12 +506,14 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 			      ESP_LOGI(TAG, "Команда: Частичное открывание 1");
 			      break;
 			    case STOPPED:
-			      this->current_operation = COVER_OPERATION_IDLE;
 			      ESP_LOGI(TAG, "Команда: Остановлено");
+			      this->current_operation = COVER_OPERATION_IDLE;
+			      request_position();
 			      break;
 			    case ENDTIME:
 			      ESP_LOGI(TAG, "Операция завершена по таймауту");
 			      this->current_operation = COVER_OPERATION_IDLE;
+			      request_position();
 			      break;
 			    default:
 			      ESP_LOGI(TAG, "Неизвестная команда: %X", data[11]);
@@ -537,10 +541,12 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 			    case STOPPED:
 			      ESP_LOGI(TAG, "Операция: Остановлено");
 			      this->current_operation = COVER_OPERATION_IDLE;
+			      request_position();
 			      break;
 			    case PART_OPENED:
 			      ESP_LOGI(TAG, "Операция: Частично открыто");
 			      this->current_operation = COVER_OPERATION_IDLE;
+			      request_position();
 			      break;
 			    default:
 			      ESP_LOGI(TAG, "Неизвестная операция: %X", data[11]);
@@ -553,26 +559,27 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
             ESP_LOGI(TAG,  "Подменю Статус в движении" );
             switch (data[11]) { // sub_run_cmd2
               case STA_OPENING:
-                ESP_LOGI(TAG,  "Движение: Открывается" );
+                ESP_LOGI(TAG, "Движение: Открывается" );
                 this->current_operation = COVER_OPERATION_OPENING;
-                break; // STA_OPENING
+                break;
               case STA_CLOSING:
                 ESP_LOGI(TAG,  "Движение: Закрывается" );
                 this->current_operation = COVER_OPERATION_CLOSING;
-                break; // STA_CLOSING
+                break;
               case CLOSED:
                 ESP_LOGI(TAG,  "Движение: Закрыто" );
-                this->position = COVER_CLOSED;
                 this->current_operation = COVER_OPERATION_IDLE;
-                break;  // CLOSED  
+                this->position = COVER_CLOSED;
+                break;
               case OPENED:
-                this->position = COVER_OPEN;
                 ESP_LOGI(TAG, "Движение: Открыто");
                 this->current_operation = COVER_OPERATION_IDLE;
+                this->position = COVER_OPEN;
                 break;
               case STOPPED:
-                this->current_operation = COVER_OPERATION_IDLE;
                 ESP_LOGI(TAG, "Движение: Остановлено");
+                this->current_operation = COVER_OPERATION_IDLE;
+                request_position();
                 break;
               default: // sub_run_cmd2
                 ESP_LOGI(TAG,  "Движение: %X", data[11] );
