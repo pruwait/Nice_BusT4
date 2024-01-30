@@ -123,6 +123,11 @@ void NiceBusT4::loop() {
     }
   }
 
+  // Опрос текущего положения привода
+  if (init_ok && (current_operation != COVER_OPERATION_IDLE) && (now - last_position_time > POSITION_UPDATE_INTERVAL)) {
+  	last_position_time = now;
+    request_position();
+  }
 
 } //loop
 
@@ -978,6 +983,7 @@ void NiceBusT4::request_position(void) {
 
 // Обновление текущего положения привода
 void NiceBusT4::update_position(uint16_t newpos) {
+  last_position_time = millis();
   _pos_usl = newpos;
   position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
   ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %.3f", newpos, position);
