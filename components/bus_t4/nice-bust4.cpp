@@ -541,6 +541,11 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 			      ESP_LOGI(TAG, "Операция: Открыто");
 			      this->current_operation = COVER_OPERATION_IDLE;
 			      this->position = COVER_OPEN;
+			      // calibrate opened position if the motor does not report max supported position (Road 400)
+                  if (this->_max_opn == 0) {
+                    this->_max_opn = this->_pos_opn = this->_pos_usl;
+                    ESP_LOGI(TAG, "Opened position calibrated");
+                  }
 			      break;
 			    case STOPPED:
 			      ESP_LOGI(TAG, "Операция: Остановлено");
@@ -563,10 +568,12 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
             ESP_LOGI(TAG,  "Подменю Статус в движении" );
             switch (data[11]) { // sub_run_cmd2
               case STA_OPENING:
+              case 0x83: // Road 400
                 ESP_LOGI(TAG, "Движение: Открывается" );
                 this->current_operation = COVER_OPERATION_OPENING;
                 break;
               case STA_CLOSING:
+              case 0x84: // Road 400
                 ESP_LOGI(TAG,  "Движение: Закрывается" );
                 this->current_operation = COVER_OPERATION_CLOSING;
                 break;
