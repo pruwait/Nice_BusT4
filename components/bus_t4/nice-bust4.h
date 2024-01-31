@@ -369,6 +369,11 @@ struct packet_rsp_body_t {
  
 */
 
+enum position_hook_type : uint8_t {
+     IGNORE = 0x00,
+    STOP_UP = 0x01,
+  STOP_DOWN = 0x02
+ };
 
 // создаю класс, наследую членов классов Component и Cover
 class NiceBusT4 : public Component, public Cover {
@@ -413,7 +418,9 @@ class NiceBusT4 : public Component, public Cover {
     uint8_t last_published_op_;
     float last_published_pos_;
 
-	
+    uint8_t position_hook_type{IGNORE};  // Флаг и позиция установки заданного положения привода
+    uint16_t position_hook_value;
+
     uint8_t class_gate_ = 0x55; // 0x01 sliding, 0x02 sectional, 0x03 swing, 0x04 barrier, 0x05 up-and-over
 //    uint8_t last_init_command_;
 	

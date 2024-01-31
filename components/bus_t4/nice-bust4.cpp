@@ -39,28 +39,31 @@ CoverTraits NiceBusT4::get_traits() {
 
 */
 
-
-
 void NiceBusT4::control(const CoverCall &call) {
+  position_hook_type = IGNORE;
   if (call.get_stop()) {
-    // uint8_t data[2] = {CONTROL, STOP};
-    this->tx_buffer_.push(gen_control_cmd(STOP));
-    this->tx_buffer_.push(gen_inf_cmd(FOR_CU, INF_STATUS, GET));   //Состояние ворот (Открыто/Закрыто/Остановлено)
-    this->request_position();
+    send_cmd(STOP);
 
   } else if (call.get_position().has_value()) {
-    auto pos = *call.get_position();
-    if (pos != this->position) {
-      if (pos == COVER_OPEN) {
-        this->tx_buffer_.push(gen_control_cmd(OPEN));
+    float newpos = *call.get_position();
+    if (newpos != position) {
+      if (newpos == COVER_OPEN) {
+        if (current_operation != COVER_OPERATION_OPENING) send_cmd(OPEN);
 
-      } else if (pos == COVER_CLOSED) {
-        this->tx_buffer_.push(gen_control_cmd(CLOSE));
+      } else if (newpos == COVER_CLOSED) {
+        if (current_operation != COVER_OPERATION_CLOSING) send_cmd(CLOSE);
 
-      } /*else {
-          uint8_t data[3] = {CONTROL, SET_POSITION, (uint8_t)(pos * 100)};
-          this->send_command_(data, 3);
-        }*/
+      } else { // Произвольное положение
+        position_hook_value = (_pos_opn - _pos_cls) * newpos + _pos_cls;
+        ESP_LOGI(TAG, "Требуемое положение привода: %d", position_hook_value);
+        if (position_hook_value > _pos_usl) {
+          position_hook_type = STOP_UP;
+          if (current_operation != COVER_OPERATION_OPENING) send_cmd(OPEN);
+        } else {
+          position_hook_type = STOP_DOWN;
+          if (current_operation != COVER_OPERATION_CLOSING) send_cmd(CLOSE);
+        }
+      }
     }
   }
 }
@@ -102,7 +105,7 @@ void NiceBusT4::loop() {
 
 
   // разрешаем отправку каждые 100 ms
-  const uint32_t now = millis();
+  uint32_t now = millis();
   if (now - this->last_uart_byte_ > 100) {
     this->ready_to_tx_ = true;
     this->last_uart_byte_ = now;
@@ -124,6 +127,7 @@ void NiceBusT4::loop() {
   }
 
   // Опрос текущего положения привода
+  now = millis();
   if (init_ok && (current_operation != COVER_OPERATION_IDLE) && (now - last_position_time > POSITION_UPDATE_INTERVAL)) {
   	last_position_time = now;
     request_position();
@@ -996,6 +1000,12 @@ void NiceBusT4::update_position(uint16_t newpos) {
   ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %.3f", newpos, position);
   if (position < CLOSED_POSITION_THRESHOLD) position = COVER_CLOSED;
   publish_state();  // публикуем состояние
+  
+  if ((position_hook_type == STOP_UP && _pos_usl >= position_hook_value) || (position_hook_type == STOP_DOWN && _pos_usl <= position_hook_value)) {
+  	ESP_LOGI(TAG, "Достигнуто требуемое положение. Останавливаем ворота");
+  	send_cmd(STOP);
+  	position_hook_type = IGNORE;
+  }
 }
 
 }  // namespace bus_t4
