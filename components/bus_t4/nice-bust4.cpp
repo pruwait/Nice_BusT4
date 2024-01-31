@@ -292,7 +292,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               break; // 0x02
 
           }  // switch 16
-          this->publish_state();  // публикуем состояние
+          this->publish_state_if_changed();  // публикуем состояние
 
           break; //  INF_IO
 
@@ -364,7 +364,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
               this->current_operation = COVER_OPERATION_CLOSING;
               break;
           }  // switch
-          this->publish_state();  // публикуем состояние
+          this->publish_state_if_changed();  // публикуем состояние
           break;
 
           //      default: // cmd_mnu
@@ -556,7 +556,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 			      ESP_LOGI(TAG, "Неизвестная операция: %X", data[11]);
 			  }  // switch sub_run_cmd2
 			}
-			this->publish_state();  // публикуем состояние
+			this->publish_state_if_changed();  // публикуем состояние
             break; //RUN
 
           case STA:
@@ -999,12 +999,22 @@ void NiceBusT4::update_position(uint16_t newpos) {
   position = (_pos_usl - _pos_cls) * 1.0f / (_pos_opn - _pos_cls);
   ESP_LOGI(TAG, "Условное положение ворот: %d, положение в %%: %.3f", newpos, position);
   if (position < CLOSED_POSITION_THRESHOLD) position = COVER_CLOSED;
-  publish_state();  // публикуем состояние
+  publish_state_if_changed();  // публикуем состояние
   
   if ((position_hook_type == STOP_UP && _pos_usl >= position_hook_value) || (position_hook_type == STOP_DOWN && _pos_usl <= position_hook_value)) {
   	ESP_LOGI(TAG, "Достигнуто требуемое положение. Останавливаем ворота");
   	send_cmd(STOP);
   	position_hook_type = IGNORE;
+  }
+}
+
+// Публикация состояния ворот при изменении
+void NiceBusT4::publish_state_if_changed(void) {
+  if (current_operation == COVER_OPERATION_IDLE) position_hook_type = IGNORE;
+  if (last_published_op != current_operation || last_published_pos != position) {
+    publish_state();
+    last_published_op = current_operation;
+    last_published_pos = position;
   }
 }
 

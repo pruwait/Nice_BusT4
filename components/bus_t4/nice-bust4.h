@@ -415,8 +415,10 @@ class NiceBusT4 : public Component, public Cover {
     uint32_t last_update_{0};
     uint32_t last_uart_byte_{0};
 
-    uint8_t last_published_op_;
-    float last_published_pos_;
+    CoverOperation last_published_op;  // Последние опубликованные состояние и положение
+    float last_published_pos{-1};
+
+    void publish_state_if_changed(void);
 
     uint8_t position_hook_type{IGNORE};  // Флаг и позиция установки заданного положения привода
     uint16_t position_hook_value;
