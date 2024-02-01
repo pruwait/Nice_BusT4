@@ -69,7 +69,7 @@ static const uint32_t BAUD_WORK = 19200; /* рабочий бодрэйт */
 static const uint8_t START_CODE = 0x55; /*стартовый байт пакета */
 
 static const float CLOSED_POSITION_THRESHOLD = 0.007;  // Значение положения привода в процентах, ниже которого ворота считаются полностью закрытыми
-static const uint32_t POSITION_UPDATE_INTERVAL = 1000;  // Интервал обновления текущего положения привода, мс
+static const uint32_t POSITION_UPDATE_INTERVAL = 500;  // Интервал обновления текущего положения привода, мс
 
 /* сетевые настройки esp
   Ряд может принимать значения от 0 до 63, по-умолчанию 0
