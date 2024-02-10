@@ -71,6 +71,8 @@ Stop:  55 0c 00 03 00 81 01 05 86 01 82 02 64 e5 0c
 * Улучшена совместимость с приводами DPRO924
 * Кнопка СТОП всегда доступна в User Interface объекта
 * Улучшена совместимость с приводами Walky WL1024C
+* Улучшена совместимость с приводами Spin ([@TheGoblinHero](https://github.com/TheGoblinHero))
+* Добавлена функция задания произвольного положения привода ([@TheGoblinHero](https://github.com/TheGoblinHero))
 
 Если проект заинтересовал, вы можете [купить мне пиво или кофе](https://www.tinkoff.ru/cf/12xvN3UtJkO)
 
