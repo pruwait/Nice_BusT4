@@ -68,6 +68,8 @@ static const uint32_t BAUD_BREAK = 9200; /* бодрэйт для длинног
 static const uint32_t BAUD_WORK = 19200; /* рабочий бодрэйт */
 static const uint8_t START_CODE = 0x55; /*стартовый байт пакета */
 
+static const float CLOSED_POSITION_THRESHOLD = 0.007;  // Значение положения привода в процентах, ниже которого ворота считаются полностью закрытыми
+static const uint32_t POSITION_UPDATE_INTERVAL = 500;  // Интервал обновления текущего положения привода, мс
 
 /* сетевые настройки esp
   Ряд может принимать значения от 0 до 63, по-умолчанию 0
@@ -114,14 +116,14 @@ enum cmd_mnu  : uint8_t {
 
 /* используется в ответах STA*/
 enum sub_run_cmd2 : uint8_t {
-  STA_OPENING  = 0x02,	
-  STA_CLOSING  = 0x03,
-  OPENED   = 0x04,
-  CLOSED   = 0x05,
-  STOPPED   = 0x08,	
-  ENDTIME = 0x06, // закончен маневр по таймауту	
-
-};	
+  STA_OPENING = 0x02,
+  STA_CLOSING = 0x03,
+       OPENED = 0x04,
+       CLOSED = 0x05,
+      ENDTIME = 0x06,  // закончен маневр по таймауту
+      STOPPED = 0x08,
+  PART_OPENED = 0x10,  // частичное открывание
+};
 
 /* Ошибки */
 enum errors_byte  : uint8_t {
@@ -367,6 +369,11 @@ struct packet_rsp_body_t {
  
 */
 
+enum position_hook_type : uint8_t {
+     IGNORE = 0x00,
+    STOP_UP = 0x01,
+  STOP_DOWN = 0x02
+ };
 
 // создаю класс, наследую членов классов Component и Cover
 class NiceBusT4 : public Component, public Cover {
@@ -391,10 +398,6 @@ class NiceBusT4 : public Component, public Cover {
 
     void set_class_gate(uint8_t class_gate) { class_gate_ = class_gate; }
     
-    void set_to_address(uint16_t to_address) {this->to_addr = to_address;}
-    void set_from_address(uint16_t from_address) {this->from_addr = from_address;} 
-    void set_oxi_address(uint16_t oxi_address) {this->oxi_addr = oxi_address;}
-    
  /*   void set_update_interval(uint32_t update_interval) {  // интервал получения статуса привода
       this->update_interval_ = update_interval;
     }*/
@@ -404,16 +407,22 @@ class NiceBusT4 : public Component, public Cover {
   protected:
     void control(const cover::CoverCall &call) override;
     void send_command_(const uint8_t *data, uint8_t len);
+    void request_position(void);  // Запрос условного текущего положения привода
+    void update_position(uint16_t newpos);  // Обновление текущего положения привода
 
-
+    uint32_t last_position_time{0};  // Время последнего обновления текущего положения
     uint32_t update_interval_{500};
     uint32_t last_update_{0};
     uint32_t last_uart_byte_{0};
 
-    uint8_t last_published_op_;
-    float last_published_pos_;
+    CoverOperation last_published_op;  // Последние опубликованные состояние и положение
+    float last_published_pos{-1};
 
-	
+    void publish_state_if_changed(void);
+
+    uint8_t position_hook_type{IGNORE};  // Флаг и позиция установки заданного положения привода
+    uint16_t position_hook_value;
+
     uint8_t class_gate_ = 0x55; // 0x01 sliding, 0x02 sectional, 0x03 swing, 0x04 barrier, 0x05 up-and-over
 //    uint8_t last_init_command_;
 	
@@ -429,18 +438,17 @@ class NiceBusT4 : public Component, public Cover {
     uint16_t _pos_cls = 0;  // позиция закрытия энкодера или таймера, не для всех приводов
     uint16_t _pos_usl = 0;  // условная текущая позиция энкодера или таймера, не для всех приводов	
     // настройки заголовка формируемого пакета
-    uint16_t from_addr  = 0x0066; //от кого пакет, адрес bust4 шлюза
-    uint16_t to_addr; // = 0x00ff;	 // кому пакет, адрес контроллера привода, которым управляем
-    uint16_t oxi_addr; // = 0x000a;	 // адрес приемника
-    
+    uint8_t addr_from[2] = {0x00, 0x66}; //от кого пакет, адрес bust4 шлюза
+    uint8_t addr_to[2]; // = 0x00ff;	 // кому пакет, адрес контроллера привода, которым управляем
+    uint8_t addr_oxi[2]; // = 0x000a;	 // адрес приемника
 
     std::vector<uint8_t> raw_cmd_prepare (std::string data);             // подготовка введенных пользователем данных для возможности отправки	
 	
     // генерация inf команд
     std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data, const std::vector<uint8_t> &data, size_t len);	 // все поля
-    std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, 0x00, {0x00}, 0 );} // для команд без данных
+    std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd) {return gen_inf_cmd(this->addr_to[0], this->addr_to[1], whose, inf_cmd, run_cmd, 0x00, {0x00}, 0 );} // для команд без данных
     std::vector<uint8_t> gen_inf_cmd(const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data, std::vector<uint8_t> data){
-	    return gen_inf_cmd((uint8_t)(this->to_addr >> 8), (uint8_t)(this->to_addr & 0xFF), whose, inf_cmd, run_cmd, next_data, data, data.size());} // для команд c данными
+	    return gen_inf_cmd(this->addr_to[0], this->addr_to[1], whose, inf_cmd, run_cmd, next_data, data, data.size());} // для команд c данными
     std::vector<uint8_t> gen_inf_cmd(const uint8_t to_addr1, const uint8_t to_addr2, const uint8_t whose, const uint8_t inf_cmd, const uint8_t run_cmd, const uint8_t next_data){
 	    return gen_inf_cmd(to_addr1, to_addr2, whose, inf_cmd, run_cmd, next_data, {0x00}, 0);} // для команд с адресом и без данных 	
     	    
