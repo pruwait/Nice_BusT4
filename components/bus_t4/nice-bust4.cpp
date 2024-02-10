@@ -370,6 +370,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           //      default: // cmd_mnu
         case AUTOCLS:
           this->autocls_flag = data[14];
+	  ESP_LOGCONFIG(TAG, "  Автозакрытие - L1: %S ", autocls_flag ? "Да" : "Нет");	
           break;
           
         case PH_CLS_ON:
