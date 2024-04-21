@@ -415,8 +415,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
          //     ESP_LOGCONFIG(TAG, "  Привод WALKY!: %S ", str.c_str());
                                         }
             if (this->product_ == ROBUSHSR10) { 
-         //     this->is_robus = true;
-              ESP_LOGCONFIG(TAG, "  Привод ROBUSHSR10!: %S ", str.c_str());
+              this->is_robus = true;
+          //    ESP_LOGCONFIG(TAG, "  Привод ROBUS!: %S ", str.c_str());
                                         }		  
 		  
           }
