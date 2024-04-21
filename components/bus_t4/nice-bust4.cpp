@@ -119,12 +119,14 @@ void NiceBusT4::loop() {
   }
 
   // Опрос текущего положения привода
-  /*
+  if (!is_robus) {
+  
   now = millis();
   if (init_ok && (current_operation != COVER_OPERATION_IDLE) && (now - last_position_time > POSITION_UPDATE_INTERVAL)) {
   	last_position_time = now;
     request_position();
-  } */
+  } 
+  } // not robus
 
 } //loop
 
