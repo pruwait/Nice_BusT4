@@ -89,14 +89,14 @@ void NiceBusT4::loop() {
         }
         
         else if (this->class_gate_ == 0x55) {
-	//	init_device(this->addr_to[0], this->addr_to[1], 0x04);  
-	        this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
-                this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
+		init_device(this->addr_to[0], this->addr_to[1], 0x04);  
+	//        this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
+        //        this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
 	}
         else if (this->manufacturer_ == unknown)  {
-        //        init_device(this->addr_to[0], this->addr_to[1], 0x04);  
-                this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
-                this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
+                init_device(this->addr_to[0], this->addr_to[1], 0x04);  
+        //        this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
+        //        this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, PRD, GET, 0x00)); //запрос продукта
 		
         }
         this->last_update_ = millis();
