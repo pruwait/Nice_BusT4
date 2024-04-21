@@ -385,6 +385,7 @@ class NiceBusT4 : public Component, public Cover {
     bool alwayscls_flag; // Всегда закрывать - L3
     bool init_ok = false; //  определение привода при включении
     bool is_walky = false; // для walky отличается команда запроса положения
+    bool is_robus = false; // для robus не нужно переодически запрашивать позицию
 		
     void setup() override;
     void loop() override;
