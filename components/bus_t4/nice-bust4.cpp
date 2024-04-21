@@ -69,11 +69,9 @@ void NiceBusT4::control(const CoverCall &call) {
 }
 
 void NiceBusT4::setup() {
-//  delay (5000);   // пока привод не стартанёт, на команды отвечать не будет
+
 
   _uart =  uart_init(_UART_NO, BAUD_WORK, SERIAL_8N1, SERIAL_FULL, TX_P, 256, false);
-//  delay (500);
-  //  this->last_init_command_ = 0;
   // кто в сети?
 //  this->tx_buffer_.push(gen_inf_cmd(0x00, 0xff, FOR_ALL, WHO, GET, 0x00));
   
@@ -97,19 +95,13 @@ void NiceBusT4::loop() {
         this->last_update_ = millis();
     }  // if  каждую минуту
 
-
-
-
-
-
-
-
+	
   // разрешаем отправку каждые 100 ms
-  uint32_t now = millis();
+    uint32_t now = millis();
   if (now - this->last_uart_byte_ > 100) {
     this->ready_to_tx_ = true;
     this->last_uart_byte_ = now;
-  }
+  } 
 
 
   while (uart_rx_available(_uart) > 0) {
@@ -127,11 +119,12 @@ void NiceBusT4::loop() {
   }
 
   // Опрос текущего положения привода
+  /*
   now = millis();
   if (init_ok && (current_operation != COVER_OPERATION_IDLE) && (now - last_position_time > POSITION_UPDATE_INTERVAL)) {
   	last_position_time = now;
     request_position();
-  }
+  } */
 
 } //loop
 
