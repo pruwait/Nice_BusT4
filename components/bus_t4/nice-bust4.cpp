@@ -409,10 +409,16 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 //            ESP_LOGCONFIG(TAG, "  Привод: %S ", str.c_str());
             this->product_.assign(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
             std::vector<uint8_t> wla1 = {0x57,0x4C,0x41,0x31,0x00,0x06,0x57}; // для понимания, что привод Walky
+            std::vector<uint8_t> ROBUSHSR10 = {0x52,0x4F,0x42,0x55,0x53,0x48,0x53,0x52,0x31,0x30,0x00}; // для понимания, что привод ROBUSHSR10
             if (this->product_ == wla1) { 
               this->is_walky = true;
          //     ESP_LOGCONFIG(TAG, "  Привод WALKY!: %S ", str.c_str());
                                         }
+            if (this->product_ == ROBUSHSR10) { 
+         //     this->is_robus = true;
+              ESP_LOGCONFIG(TAG, "  Привод ROBUSHSR10!: %S ", str.c_str());
+                                        }		  
+		  
           }
           break;
         case HWR:
