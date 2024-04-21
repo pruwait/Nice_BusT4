@@ -242,8 +242,8 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGE(TAG,  "Команда недоступна для этого устройства" );
   }
 
-  if (((data[11] == 0x18) || (data[11] == 0x19)) && (data[13] == NOERR)) { // if evt
-    ESP_LOGD(TAG, "Получен пакет EVT с данными. Последняя ячейка %d ", data[12]);
+  if (((data[11] == GET - 0x80) || (data[11] == GET - 0x81)) && (data[13] == NOERR)) { // if evt
+  //  ESP_LOGD(TAG, "Получен пакет EVT с данными. Последняя ячейка %d ", data[12]);
     std::vector<uint8_t> vec_data(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     std::string str(this->rx_message_.begin() + 14, this->rx_message_.end() - 2);
     ESP_LOGI(TAG,  "Строка с данными: %S ", str.c_str() );
@@ -251,7 +251,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
     ESP_LOGI(TAG,  "Данные HEX %S ", pretty_data.c_str() );
     // получили пакет с данными EVT, начинаем разбирать
 
-    if ((data[6] == INF) && (data[9] == FOR_CU)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы GET, пришедшие без ошибок от привода
+    if ((data[6] == INF) && (data[9] == FOR_CU)  && (data[11] == GET - 0x80) && (data[13] == NOERR)) { // интересуют завершенные ответы на запросы GET, пришедшие без ошибок от привода
       ESP_LOGI(TAG,  "Получен ответ на запрос %X ", data[10] );
       switch (data[10]) { // cmd_submnu
         case TYPE_M:
@@ -384,7 +384,16 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
           break;  
           
       } // switch cmd_submnu
-    } // if ответы на запросы GET, пришедшие без ошибок от привода
+    } // if завершенные ответы на запросы GET, пришедшие без ошибок от привода
+
+     if ((data[6] == INF) && (data[9] == FOR_CU)  && (data[11] == GET - 0x81) && (data[13] == NOERR)) { // интересуют незавершенные ответы на запросы GET, пришедшие без ошибок от привода
+	ESP_LOGI(TAG,  "Получен незавершенный ответ на запрос %X, продолжение со смещением %X", data[10], data[12] );
+	     // повторяем команду с новым смещением
+	tx_buffer_.push(gen_inf_cmd(data[4], data[5], data[9], data[10], GET, data[12]));
+     
+     } // незавершенные ответы на запросы GET, пришедшие без ошибок от привода
+
+	  
     
     if ((data[6] == INF) && (data[9] == FOR_CU)  && (data[11] == SET - 0x80) && (data[13] == NOERR)) { // интересуют ответы на запросы SET, пришедшие без ошибок от привода    
       switch (data[10]) { // cmd_submnu
