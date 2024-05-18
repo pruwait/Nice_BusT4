@@ -1,0 +1,193 @@
+# Отправляет пакеты через uart в шину Nice BUS T4
+
+esphome:
+  name: "nice-wifi"
+#  name_add_mac_suffix: true
+  platform: ESP8266
+  board: d1_mini
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/pruwait/Nice_BusT4
+#  - source: my_components
+    
+# Enable logging
+logger:
+  level: DEBUG
+  baud_rate: 0
+  
+# Enable Home Assistant API
+api:
+#  reboot_timeout: 0s # иначе перезагружается при отключении от hassio  
+  services:
+# для отправки hex команд на привод
+  - service: raw_command
+    variables:
+        raw_cmd: string
+    then:
+      lambda: |-
+         nice_cover -> NiceBusT4::send_raw_cmd(raw_cmd);
+         
+  - service: send_inf_command
+    variables:
+       to_addr: string
+       whose: string
+       command: string
+       type_command: string
+       next_data: string
+       data_on: bool
+       data_command: string
+    then:
+      lambda: |-
+        nice_cover -> NiceBusT4::send_inf_cmd(to_addr, whose, command, type_command, next_data, data_on, data_command);
+
+# распознавание длины створки
+  - service: gate_length_recognition
+    then:
+      lambda: |-
+         nice_cover -> NiceBusT4::set_mcu("0b","01");
+
+# распознавание устройств BlueBus
+  - service: devices_recognition
+    then:
+      lambda: |-
+         nice_cover -> NiceBusT4::set_mcu("0a","01");         
+
+# усилие при закрытии
+  - service: closing_force
+    variables:
+      force: string
+    then:
+      lambda: |-
+         nice_cover -> NiceBusT4::set_mcu("4b", force);         
+
+# усилие при открытии
+  - service: opening_force
+    variables:
+      force: string
+    then:
+      lambda: |-
+         nice_cover -> NiceBusT4::set_mcu("4a", force);
+
+  
+ota:
+
+# Set statul led for Wemos D1 mini
+status_led:
+  pin: 
+    number: D4
+    inverted: true
+  
+wifi:
+  ssid: !secret wifi_ssid
+  password:  !secret wifi_password
+      
+  
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    password: !secret ota_pass
+
+captive_portal:
+
+
+web_server:
+  port: 80
+  js_include: "www.js"
+  js_url: ""
+  version: 2  
+
+# Кнопки для отправки команд
+button:
+  - platform: template
+    name: Пошагово
+    id: sbs
+    on_press:
+      lambda: |-
+           nice_cover -> NiceBusT4::send_cmd(bus_t4::SBS);
+
+  - platform: template
+    name: Статус входов
+    id: in_stat
+    on_press:
+      lambda: |-
+           nice_cover -> NiceBusT4::send_raw_cmd("55.0D.00.03.00.66.08.06.6B.04.D0.99.00.00.4D.0D");
+
+#         nice_cover -> NiceBusT4::send_raw_cmd("55 0c 00 ff 00 66 01 05 9D 01 82 01 64 E6 0c");
+# 55.0E.00.03.00.81.08.07.8D.04.0B.A9.00.01.01.A6.0E поиск положений
+
+  - platform: template
+    name: Частичное открытие 1
+    id: p_opn1
+    on_press:
+      lambda: |-
+         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN1);
+                      
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::STOP);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::OPEN);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::CLOSE);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN2);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN3);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN4);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN5);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::P_OPN6);
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::UNLK_OPN);  # Разблокировать и открыть 
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::CLS_LOCK);  # Закрыть и блокировать
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::UNLCK_CLS); # Разблокировать и Закрыть
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::LOCK);      # Блокировать
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::UNLOCK);    # Разблокировать
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::HOST_SBS);  # Ведущий SBS
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::HOST_OPN);  # Ведущий открыть
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::HOST_CLS);  # Ведущий закрыть
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::SLAVE_SBS); # Ведомый SBS
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::SLAVE_OPN); # Ведомый открыть
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::SLAVE_CLS); # Ведомый закрыть
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::AUTO_ON);   # Автооткрывание активно
+#         nice_cover -> NiceBusT4::send_cmd(bus_t4::AUTO_OFF);  # Автооткрывание неактивно
+
+cover:
+- platform: bus_t4
+  name: "Nice Cover"
+  device_class: gate
+  id: nice_cover
+  
+#  address: 0x0003            # адрес привода
+#  use_address: 0x0081        # адрес шлюза
+
+
+# работаем с приёмником OXI
+
+# отключаем автозакрытие ворот, если это нужно для погрузочно-разгрузочных работ
+switch:
+  - platform: template
+    name: "Автозакрытие"
+    id: autoclose
+    restore_mode: DISABLED
+#    optimistic: true
+    lambda: |-
+      if (nice_cover -> NiceBusT4::autocls_flag) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      lambda: |-
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "80", "a9", "00", true, "01");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "84", "a9", "00", true, "01");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "80", "99", "00", true, "01");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "84", "99", "00", true, "01");                
+    turn_off_action:
+      lambda: |-
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "80", "a9", "00", true, "00");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "84", "a9", "00", true, "00");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "80", "99", "00", true, "01");
+        nice_cover -> NiceBusT4::send_inf_cmd("0003", "04", "84", "99", "00", true, "01");                        
+
+
+              
+#script:
+#  - id: send_cmd
+#    then:
+#      - switch.turn_on: my_switch
+#      - delay: 1s
+#      - switch.turn_off: my_switch              
