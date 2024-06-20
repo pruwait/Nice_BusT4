@@ -72,6 +72,7 @@ api:
 
   
 ota:
+  - platform: esphome # Для ESPHOME 2024.6.1
 
 # Set statul led for Wemos D1 mini
 status_led:
