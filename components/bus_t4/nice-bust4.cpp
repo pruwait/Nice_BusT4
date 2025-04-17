@@ -640,6 +640,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
 
   } // else
 
+ if ((data[6] == CMD) && (data[9] == FOR_CU)  && (data[10] == CUR_MAN) && (data[13] == NOERR)) { // интересуют FOR_CU ответы на запросы CMD, пришедшие без ошибок. Ищем статус для RO600
 
   ///////////////////////////////////////////////////////////////////////////////////
 
@@ -647,13 +648,13 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
   // RSP ответ (ReSPonce) на простой прием команды CMD, а не ее выполнение. Также докладывает о завершении операции.
   /* if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == FOR_CU) && (data[10] == CUR_MAN) && (data[12] == 0x19)) { // узнаём пакет статуса по содержимому в определённых байтах
      //  ESP_LOGD(TAG, "Получен пакет RSP. cmd = %#x", data[11]);
-
+*/
      switch (data[11]) {
-       case OPENING:
+       case STA_OPENING:
          this->current_operation = COVER_OPERATION_OPENING;
          ESP_LOGD(TAG, "Статус: Открывается");
          break;
-       case CLOSING:
+       case STA_CLOSING:
          this->current_operation = COVER_OPERATION_CLOSING;
          ESP_LOGD(TAG, "Статус: Закрывается");
          break;
@@ -679,7 +680,7 @@ void NiceBusT4::parse_status_packet (const std::vector<uint8_t> &data) {
      this->publish_state();  // публикуем состояние
 
     } //if
-  */
+ 
   /*
     // статус после достижения концевиков
     if ((data[1] == 0x0E) && (data[6] == CMD) && (data[9] == FOR_CU) && (data[10] == CUR_MAN) &&  (data[12] == 0x00)) { // узнаём пакет статуса по содержимому в определённых байтах
