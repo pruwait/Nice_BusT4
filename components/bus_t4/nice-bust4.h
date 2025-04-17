@@ -386,6 +386,7 @@ class NiceBusT4 : public Component, public Cover {
     bool init_ok = false; //  определение привода при включении
     bool is_walky = false; // для walky отличается команда запроса положения
     bool is_robus = false; // для robus не нужно переодически запрашивать позицию
+    bool is_ro = false; // для ro600 отличается пакет со статусом позиции и статусом движения
 		
     void setup() override;
     void loop() override;
