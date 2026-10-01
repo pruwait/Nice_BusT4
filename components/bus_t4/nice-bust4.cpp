@@ -1020,7 +1020,7 @@ void NiceBusT4::init_device (const uint8_t addr1, const uint8_t addr2, const uin
 void NiceBusT4::request_position(void) {
   if (is_walky)
     tx_buffer_.push(gen_inf_cmd(this->addr_to[0], this->addr_to[1], FOR_CU, CUR_POS, GET, 0x00, {0x01}, 1));
-  else
+  else if (!is_robus)
     tx_buffer_.push(gen_inf_cmd(FOR_CU, CUR_POS, GET));
 }
 
